@@ -22,16 +22,16 @@
 			
 			interval = setInterval(
 				function():void {
-					if(currentLabel=="INTRO") {
+					if(currentLabel!="POSTINTRO") {
 						if(Math.random()<.8) {
 							label = label=="IN"?"OUT":"IN";
 							switchLabel(self,label);
 						}
 					}
-				},4000);
+				},3000);
 			interval2 = setInterval(
 				function():void {
-					if(currentLabel=="INTRO") {
+					if(currentLabel!="POSTINTRO") {
 						if(Math.random()<.5) {
 							label2 = label2=="BOSSTALK"?"MEATTALK":"BOSSTALK";
 							switchLabel(self,label2);

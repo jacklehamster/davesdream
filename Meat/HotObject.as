@@ -13,6 +13,8 @@
 		public var occupied:Boolean;
 		public var blocked:Boolean;
 		
+		private var onFrame:Function = null;
+		
 		public function HotObject() {
 			activator = null;
 			model = this;
@@ -52,10 +54,12 @@
 		}
 		
 		public function forceScriptEnd():void {
+			clearEnterFrame();
 			master.scriptEnded(self);
 		}
 		
 		public function runScript(label:Object=null,noEnd:Boolean= false):void {
+			clearEnterFrame();
 			if(!label) {
 				play();
 			}
@@ -63,7 +67,7 @@
 				gotoAndPlay(label);
 			}
 			addEventListener(Event.ENTER_FRAME,
-				function(e:Event):void {
+				onFrame = function(e:Event):void {
 					if(currentFrameLabel=="ACTIVATE") {
 						master.activate(self);
 					}
@@ -74,7 +78,14 @@
 					}
 				});
 		}
-
+		
+		public function clearEnterFrame():void {
+			if(onFrame!=null) {
+				removeEventListener(Event.ENTER_FRAME,onFrame);
+				onFrame = null;
+				gotoAndStop(1);
+			}
+		}
 	}
 	
 }

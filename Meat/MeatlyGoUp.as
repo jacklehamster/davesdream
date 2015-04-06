@@ -5,10 +5,7 @@
 	
 	public class MeatlyGoUp extends Meatly {
 		
-		
-		public function MeatlyGoUp() {
-			// constructor code
-		}
+		public var callback:Function = null;
 	}
 	
 }

@@ -15,6 +15,7 @@
 	import flash.net.URLLoader;
 	import flash.utils.setTimeout;
 	import flash.utils.clearTimeout;
+	import flash.geom.Point;
 	
 	//	sound assets: http://www.flashkit.com/soundfx/Communication/Typewriter/Keyboard-Submersi-8700/index.php
 	//	music: http://www.newgrounds.com/audio/listen/616467
@@ -196,6 +197,8 @@
 			"gun_": {
 				action: function(object:HotObject,meatly:Meatly):void {
 					meatly.scaleX = Math.abs(meatly.scaleX);
+					if(meatly is Dude)
+						(meatly as Dude).stopMoving();
 					meatly.runScript("SELFDESTROY",true);
 					if(meatly.model.name=="dave4") {
 						wheel.gotoAndStop(1);
@@ -228,28 +231,43 @@
 				}
 			},
 			"paddle_boat": {
+				canWalkTo:true,
 				action: function(object:HotObject,meatly:Meatly):void {
 					object.occupied = true;
 					meatly.visible = false;
-					object.runScript("ROW");
+					object.runScript("ROW",true);
 				},
 				end:function(object:HotObject,meatly:Meatly):void {
 					//boat2.visible = true;
-					//boat.visible = false;
 					meatly.visible = true;
 					object.occupied = false;
 					object.gotoAndStop(1);
 					meatly = setMeat(meatly.id,robinsonwell,"STOP");
+					
+					object.visible = false;
+					var timeout:int = setTimeout(function():void { clearTimeout(timeout); object.visible = true; },3000);
+					
 					if(meatly==meat&&MovieClip(parent).currentLabel!="WELL") {
 						MovieClip(parent).gotoAndPlay("WELL");
 					}
 				}
 			},
 			"paddle_boat2": {
+				canWalkTo:true,
 				action: function(object:HotObject,meatly:Meatly):void {
+					object.occupied = true;
+					meatly.visible = false;
+					object.runScript("ROWBACK",true);
+				},
+				end:function(object:HotObject,meatly:Meatly):void {
+					meatly.visible = true;
+					object.occupied = false;
+					object.gotoAndStop(1);
 					meatly = setMeat(meatly.id,robinson,"STOP");
-					//boat2.visible = false;
-					//boat.visible = true;
+					
+					object.visible = false;
+					var timeout:int = setTimeout(function():void { clearTimeout(timeout); object.visible = true; },3000);
+					
 					if(meatly==meat&&MovieClip(parent).currentLabel!="BACKTOISLAND") {
 						MovieClip(parent).gotoAndPlay("BACKTOISLAND");
 					}
@@ -870,13 +888,16 @@
 						}
 						addItem("gun");
 
+						meatly = setMeat(meatly.id,meatlygoup);
+						meatly.play();
+						block(meatly);
+						(meatly as MeatlyGoUp).callback = function():void {
+							meatly = setMeat(meatly.id,walk2,"STOP");
+							unblock(meatly);
+							if(meat==meatly)
+								MovieClip(parent).gotoAndPlay("LEVEL2");							
+						};
 						
-//						block(meatly);
-						meatly.visible = false;
-						meatly = setMeat(meatly.id,walk2,"STOP");
-//						meatlygoup.runScript();
-						if(meat==meatly)
-							MovieClip(parent).gotoAndPlay("LEVEL2");
 					}
 				},
 				end: function(object:HotObject,meatly:Meatly):void {
@@ -893,6 +914,7 @@
 		private var frame:int = 0;
 		private var meatlies:Object = {};
 		private var rescueMeat:Meatly;
+		private var rescueLabel:String;
 		
 		private var repeater:Object = {};
 		
@@ -1002,10 +1024,17 @@
 				history.push({frame:frame,id:meatly.id,action:"item",item:item,model:object?object.model.name:null});
 		}
 		
-		private function recordRescue(meatly:Meatly,object:HotObject):void {
-			trace(meatly,object.model.name);
+		private function recordRescue(meatly:Meatly,rescue:Meatly,object:HotObject,label:String,x:Number,y:Number):void {
+			trace("RESCUE>",meatly==meat,rescue.model.name,object.model.name,label,x,y);
 			if(!meatly.repeater) {
-				history.push({frame:frame,id:meatly.id,action:"rescue",model:object.model.name});
+				history.pop();
+//				history.push({frame:frame,id:meatly.id,action:"rescue",rescue:rescue.model.name,model:object.model.name,label:label,pos:{x:x,y:y}});
+			}
+		}
+		
+		private function recordFastforward(meatly:Meatly,object:HotObject):void {
+			if(!meatly.repeater) {
+				history.push({frame:frame,id:meatly.id,action:"fastforward",model:object.model.name});
 			}
 		}
 		
@@ -1031,8 +1060,13 @@
 							performItemAction(entry.item,entry.model?self[entry.model]:m,m);
 							break;
 						case "rescue":
+							trace("rescue repeat",entry.model,entry.label,entry.pos.x,entry.pos.y);
+							//m = meatlies[entry.id];
+							//performRescue(m,self[entry.rescue],self[entry.model],entry.label,entry.pos.x,entry.pos.y);
+							break;
+						case "fastforward":
 							m = meatlies[entry.id];
-							setMeat(m.id,self[entry.model],"STOP");
+							fastForward(m,self[entry.model]);
 							break;
 					}
 				}
@@ -1073,7 +1107,7 @@
 				meat.gotoAndStop(1);
 			}
 			
-			addChild(meat);
+			addChildAt(meat,getChildIndex(model));
 			return meat;
 		}
 		
@@ -1092,6 +1126,7 @@
 
 			if(selfMeat) {
 				rescueMeat = model;
+				rescueLabel = MovieClip(parent).currentLabel;
 				var name:String = meatly.model.name;
 				var script:Object = SCRIPTS[name];
 				if(!script) {
@@ -1121,7 +1156,7 @@
 				meatly.id = id;
 //				meatly.mouseEnabled = true;
 			}
-			addChild(meatly);
+			addChildAt(meatly,getChildIndex(model));
 			
 			return meatly;
 		}
@@ -1157,10 +1192,29 @@
 				trace("NO COMBO:",item+"_"+name);
 			}
 			else if(script.action) {
-				object.activator = meatly;
-				object.scriptRunning = script;
-				(script.action as Function).call(self,object,object.activator);
-				recordItem(meatly,item,object==meatly?null:object);
+				if(script.canWalkTo) {
+					recordPress(meatly,object);
+					(meatly as Dude).walkTo(object,
+						function(meatly:Meatly,object:HotObject):void {
+							if(object.occupied && object.activator==meat) {
+								performRescue(object.activator,rescueMeat,object,rescueLabel,object.activator.x,object.activator.y);
+							}
+							object.activator = meatly;
+							object.scriptRunning = script;
+							(script.action as Function).call(self,object,object.activator);
+							recordItem(meatly,item,object==meatly?null:object);
+						}
+					);
+				}
+				else {
+					if(object.occupied && object.activator==meat) {
+						performRescue(object.activator,rescueMeat,object,rescueLabel,object.activator.x,object.activator.y);
+					}
+					object.activator = meatly;
+					object.scriptRunning = script;
+					(script.action as Function).call(self,object,object.activator);
+					recordItem(meatly,item,object==meatly?null:object);
+				}
 			}
 		}
 		
@@ -1190,19 +1244,15 @@
 						trace("SCRIPT missing:",name);
 					}
 					if(script) {
-						var canWalkTo:Boolean = false;
-						canWalkTo = script.canWalkTo;
-						
-						if(canWalkTo && !object.blocked) {
+						if(script.canWalkTo && !object.blocked) {
 							recordPress(meatly,object);
 							(meatly as Dude).walkTo(object,
 								function(meatly:Meatly,object:HotObject):void {
-									trace(object.occupied,object.model.name);
-									if(script.action && (meat!=meatly||!object.occupied) && object.canGo())  {
+									//trace(object.occupied,object.model.name);
+									if(script.action && (meat!=meatly&&object.activator==meat||!object.occupied) && object.canGo())  {
 										if(object.occupied && object.activator==meat) {
-											setMeat(meat.id,rescueMeat,"STOP");
-											unblock(meat);
-											recordRescue(meat,rescueMeat);
+//											fastForward(meat,object);
+											performRescue(object.activator,rescueMeat,object,rescueLabel,object.activator.x,object.activator.y);
 										}
 										object.scriptRunning = script;
 										object.activator = meatly;
@@ -1212,11 +1262,10 @@
 							);
 						}
 						else if(script.direct) {
-							if(script.action && (meat!=meatly||!object.occupied) && object.canGo())  {
+							if(script.action && (meat!=meatly&&object.activator==meat||!object.occupied) && object.canGo())  {
 								if(object.occupied && object.activator==meat) {
-									setMeat(meat.id,rescueMeat,"STOP");
-									unblock(meat);
-									recordRescue(meat,rescueMeat);
+//									fastForward(meat,object);
+									performRescue(object.activator,rescueMeat,object,rescueLabel,object.activator.x,object.activator.y);
 								}
 								object.scriptRunning = script;
 								object.activator = meatly;
@@ -1227,6 +1276,25 @@
 					}
 				}
 			}
+		}
+		
+		private function performRescue(meatly:Meatly,rescue:Meatly,object:HotObject,label:String,x:Number,y:Number):void {
+			
+			object.clearEnterFrame();
+			recordRescue(meatly,rescue,object,label,x,y);
+			meatly = setMeat(meatly.id,rescue,"STOP");
+			meatly.x = x;
+			meatly.y = y;
+			if(MovieClip(root).currentLabel!=label)
+				MovieClip(root).gotoAndPlay(label);
+			unblock(meatly);
+		}
+		
+		private function fastForward(meatly:Meatly,object:HotObject):void {
+			//trace("FF>>",object.model.name,meatly==meat);
+			recordFastforward(meatly,object);
+			object.forceScriptEnd();
+			object.gotoAndStop(1);
 		}
 		
 		public function activate(object:HotObject):void {
@@ -1240,11 +1308,11 @@
 		
 		public function scriptEnded(object:HotObject):void {
 			var script:Object = object.scriptRunning;
-			//trace("END>",object,object.scriptRunning,object.model.name);
 			if(!script) {
 				script = SCRIPTS[object.model.name];
 			}
 			if(script.end) {
+				//trace("END>",object,object.scriptRunning,object.model.name,object.activator==meat);
 				(script.end as Function).call(this,object,object.activator);
 			}
 			object.scriptRunning = null;

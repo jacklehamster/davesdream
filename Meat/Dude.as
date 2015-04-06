@@ -7,18 +7,30 @@
 	
 	public class Dude extends Meatly {
 		
+		private var walkingCallback:Function = null;
 
 		public function destroyed():void {
 			master.scriptEnded(self);
 			dispatchEvent(new Event("move"));
 		}
 		
+		public function stopMoving():void {
+			if(walkingCallback!=null) {
+				removeEventListener(Event.ENTER_FRAME,walkingCallback);
+				walkingCallback = null;
+			}
+		}
+		
 		public function walkTo(object:HotObject,callback:Function):void {
 			dispatchEvent(new Event("move"));
-			if(currentLabel=="STOP"||currentLabel=="STOPLEFT"||currentLabel=="ANGRY") {
+//			if(currentLabel=="STOP"||currentLabel=="STOPLEFT"||currentLabel=="ANGRY") {
 				gotoAndPlay("WALK");
+				if(walkingCallback!=null) {
+					removeEventListener(Event.ENTER_FRAME,walkingCallback);
+					walkingCallback = null;
+				}
 				addEventListener(Event.ENTER_FRAME,
-					function(e:Event):void {
+					walkingCallback = function(e:Event):void {
 						if(object.blocked) {
 							objX = object.x,objY = object.y;
 							if(object.hotPos) {
@@ -32,6 +44,7 @@
 								scaleX = -scaleX;
 							}
 							e.currentTarget.removeEventListener(e.type,arguments.callee);
+							walkingCallback = null;
 							gotoAndStop("STOP");							
 						}
 						else {
@@ -58,12 +71,13 @@
 									}
 								}
 								e.currentTarget.removeEventListener(e.type,arguments.callee);
+								walkingCallback = null;
 								gotoAndStop("STOP");
 								callback(self,object);
 							}
 						}
 					});
-			}
+//			}
 		}
 	}
 	
