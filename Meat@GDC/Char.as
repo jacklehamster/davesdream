@@ -2,8 +2,10 @@
 	
 	public class Char extends Element {
 
-		public function Char() {
-			// constructor code
+		
+		public function setLabel(label:String):void {
+			if(label!=currentLabel)
+				gotoAndPlay(label);
 		}
 
 	}

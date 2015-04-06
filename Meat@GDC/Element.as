@@ -1,6 +1,7 @@
 ﻿package  {
 	import flash.display.MovieClip;
 	import flash.display.FrameLabel;
+	import com.newgrounds.encoders.json.encodeJson;
 	
 	public class Element extends MovieClip {
 
@@ -22,7 +23,7 @@
 				previousInfo = currentInfo;
 			}
 			previousInfo.end = totalFrames;
-			trace(frameInfos);
+			trace(encodeJson(frameInfos));
 		}
 
 	}

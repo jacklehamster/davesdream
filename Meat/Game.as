@@ -16,6 +16,8 @@
 	import flash.utils.setTimeout;
 	import flash.utils.clearTimeout;
 	import flash.geom.Point;
+	import flash.media.SoundMixer;
+	import flash.media.SoundTransform;
 	
 	//	sound assets: http://www.flashkit.com/soundfx/Communication/Typewriter/Keyboard-Submersi-8700/index.php
 	//	music: http://www.newgrounds.com/audio/listen/616467
@@ -210,7 +212,8 @@
 					}
 					delete meatlies[meatly.id];
 					if(meatly==meat)
-						MovieClip(parent).gotoAndPlay(1,"ShootScene");
+						setLabel(SFX?1:2,"ShootScene");
+//						MovieClip(parent).gotoAndPlay(1,"ShootScene");
 //					else
 //						addItem("gun");
 				}
@@ -247,8 +250,8 @@
 					object.visible = false;
 					var timeout:int = setTimeout(function():void { clearTimeout(timeout); object.visible = true; },3000);
 					
-					if(meatly==meat&&MovieClip(parent).currentLabel!="WELL") {
-						MovieClip(parent).gotoAndPlay("WELL");
+					if(meatly==meat) {
+						setLabel("WELL");
 					}
 				}
 			},
@@ -268,9 +271,12 @@
 					object.visible = false;
 					var timeout:int = setTimeout(function():void { clearTimeout(timeout); object.visible = true; },3000);
 					
-					if(meatly==meat&&MovieClip(parent).currentLabel!="BACKTOISLAND") {
-						MovieClip(parent).gotoAndPlay("BACKTOISLAND");
+					if(meatly==meat) {
+						setLabel("BACKTOISLAND");
 					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="BACKTOISLAND") {
+//						MovieClip(parent).gotoAndPlay("BACKTOISLAND");
+//					}
 				}
 			},
 			"rope_sun2": {
@@ -291,9 +297,12 @@
 					meatly = setMeat(meatly.id,dev,"STOP");
 					meatly.scaleX = -Math.abs(meatly.scaleX);
 
-					if(meatly==meat&&MovieClip(parent).currentLabel!="STAIRS") {
-						MovieClip(parent).gotoAndPlay("STAIRS");
+					if(meatly==meat) {
+						setLabel("STAIRS");
 					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="STAIRS") {
+//						MovieClip(parent).gotoAndPlay("STAIRS");
+//					}
 				}
 				
 			},
@@ -311,8 +320,11 @@
 				action: function(object:HotObject,meatly:Meatly):void {
 					meatly = setMeat(meatly.id,dev2,"ANGRY");
 					meatly.scaleX = -Math.abs(meatly.scaleX);
-					if(meatly==meat&&MovieClip(parent).currentLabel!="DEV") {
-						MovieClip(parent).gotoAndPlay("DEV");
+					if(meatly==meat) {
+						setLabel("DEV");
+//					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="DEV") {
+//						MovieClip(parent).gotoAndPlay("DEV");
 					}
 				}
 			},
@@ -324,9 +336,12 @@
 					sleepy.visible = true;
 					meatly = setMeat(meatly.id,finaldev,"STOP");
 					meatly.scaleX = -Math.abs(meatly.scaleX);
-					if(meatly==meat&&MovieClip(parent).currentLabel!="FINAL") {
-						MovieClip(parent).gotoAndPlay("FINAL");
+					if(meatly==meat) {
+						setLabel("FINAL");
 					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="FINAL") {
+//						MovieClip(parent).gotoAndPlay("FINAL");
+//					}
 				}
 			},
 			"platformside": {
@@ -368,6 +383,7 @@
 					meatly = setMeat(meatly.id,daveplatform,"STOP");
 					object.activator = meatly;
 					meatly.scaleX = -Math.abs(meatly.scaleX);
+					(object as MovingPlatform).holders[meatly.id] = meatly;
 				}
 			},
 			"longplatform": {
@@ -394,9 +410,12 @@
 					object.occupied = false;
 					object.gotoAndStop(1);
 					meatly = setMeat(meatly.id,meat1,"STOP");
-					if(meatly==meat&&MovieClip(parent).currentLabel!="TOLEDGE") {
-						MovieClip(parent).gotoAndPlay("TOLEDGE");
+					if(meatly==meat) {
+						setLabel("TOLEDGE");
 					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="TOLEDGE") {
+//						MovieClip(parent).gotoAndPlay("TOLEDGE");
+//					}
 				}
 			},
 			"ladder2": {
@@ -411,9 +430,12 @@
 					object.gotoAndStop(1);
 					meatly = setMeat(meatly.id,dave1,"STOPLEFT");
 					meatly.scaleX = -Math.abs(meatly.scaleX);
-					if(meatly==meat&&MovieClip(parent).currentLabel!="UPSTAGE") {
-						MovieClip(parent).gotoAndPlay("UPSTAGE");
+					if(meatly==meat) {
+						setLabel("UPSTAGE");
 					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="UPSTAGE") {
+//						MovieClip(parent).gotoAndPlay("UPSTAGE");
+//					}
 				}
 			},
 			"paddleplatform": {
@@ -491,9 +513,12 @@
 					object.occupied = false;
 					object.gotoAndStop(1);
 					meatly = setMeat(meatly.id,robinson,"STOP");
-					if(meatly==meat&&MovieClip(parent).currentLabel!="ISLAND") {
-						MovieClip(parent).gotoAndPlay("ISLAND");
-					}					
+					if(meatly==meat) {
+						setLabel("ISLAND");
+					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="ISLAND") {
+//						MovieClip(parent).gotoAndPlay("ISLAND");
+//					}					
 				}
 			},
 			"pipe1": {
@@ -533,12 +558,18 @@
 					object.occupied = false;
 					object.gotoAndStop(1);
 					meatly = setMeat(meatly.id,dave3,"STOP");
-					if(meatly==meat && MovieClip(parent).currentLabel!="WHEEL")
-						MovieClip(parent).gotoAndPlay("WHEEL");
+					if(meatly==meat) {
+						setLabel("WHEEL");
+					}
+//					if(meatly==meat && MovieClip(parent).currentLabel!="WHEEL")
+//						MovieClip(parent).gotoAndPlay("WHEEL");
 				}
 			},
 			"wheel": {
 				direct:true,
+				canGoFunction : function(object:HotObject,meatly:Meatly):Boolean {
+					return object.currentFrame==1;
+				},
 				action: function(object:HotObject,meatly:Meatly):void {
 					object.occupied = true;
 					meatly.visible = false;
@@ -549,8 +580,11 @@
 					object.gotoAndStop(1);
 					meatly = setMeat(meatly.id,dave4,"STOP");
 					object.activator = meatly;
-					if(meatly==meat && MovieClip(parent).currentLabel!="WHEEL")
-						MovieClip(parent).gotoAndPlay("WHEEL");
+					if(meatly==meat) {
+						setLabel("WHEEL");
+					}
+//					if(meatly==meat && MovieClip(parent).currentLabel!="WHEEL")
+//						MovieClip(parent).gotoAndPlay("WHEEL");
 				}
 			},
 			"rightwalk": {
@@ -618,8 +652,11 @@
 					object.occupied = false;
 					object.gotoAndStop(1);
 					meatly = setMeat(meatly.id,meat3,"STOP");
-					if(meatly==meat && MovieClip(parent).currentLabel!="PADDLE")
-						MovieClip(parent).gotoAndPlay("PADDLE");
+					if(meatly==meat) {
+						setLabel("PADDLE");
+					}
+//					if(meatly==meat && MovieClip(parent).currentLabel!="PADDLE")
+//						MovieClip(parent).gotoAndPlay("PADDLE");
 				}
 			},
 			"platformalmost": {
@@ -651,7 +688,7 @@
 			"fire1": {
 				direct:true,
 				canGoFunction : function(object:HotObject,meatly:Meatly):Boolean {
-					return meatly!=meat || currentLabel=="NONE";
+					return meatly!=meat || object.currentLabel=="NONE";
 				},
 				action: function(object:HotObject,meatly:Meatly):void {
 					object.occupied = true;
@@ -667,7 +704,7 @@
 			"fire2": {
 				direct:true,
 				canGoFunction : function(object:HotObject,meatly:Meatly):Boolean {
-					return meatly!=meat || currentLabel=="NONE";
+					return meatly!=meat || object.currentLabel=="NONE";
 				},
 				action: function(object:HotObject,meatly:Meatly):void {
 					object.occupied = true;
@@ -723,34 +760,49 @@
 			"ledge": {
 				canWalkTo:true,
 				action: function(object:HotObject,meatly:Meatly):void {
-					if(meatly==meat&&MovieClip(parent).currentLabel!="TOLEDGE") {
-						MovieClip(parent).gotoAndPlay("TOLEDGE");
+					if(meatly==meat) {
+						setLabel("TOLEDGE");
 					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="TOLEDGE") {
+//						MovieClip(parent).gotoAndPlay("TOLEDGE");
+//					}
 				}
 			},
 			"westcircle": {
 				canWalkTo:true,
 				action: function(object:HotObject,meatly:Meatly):void {
-					if(meatly==meat&&MovieClip(parent).currentLabel!="WESTCIRCLE") {
-						MovieClip(parent).gotoAndPlay("WESTCIRCLE");
+					if(meatly==meat) {
+						setLabel("WESTCIRCLE");
 					}
+					
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="WESTCIRCLE") {
+//						MovieClip(parent).gotoAndPlay("WESTCIRCLE");
+//					}
 				}
 			},
 			"northcircle": {
 				canWalkTo:true,
 				action: function(object:HotObject,meatly:Meatly):void {
 					meatly=setMeat(meatly.id,meat5,"STOP");
-					if(meatly==meat&&MovieClip(parent).currentLabel!="NORTHCIRCLE") {
-						MovieClip(parent).gotoAndPlay("NORTHCIRCLE");
+					if(meatly==meat) {
+						setLabel("NORTHCIRCLE");
 					}
+					
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="NORTHCIRCLE") {
+//						MovieClip(parent).gotoAndPlay("NORTHCIRCLE");
+//					}
 				}
 			},
 			"eastcircle": {
 				canWalkTo:true,
 				action: function(object:HotObject,meatly:Meatly):void {
-					if(meatly==meat&&MovieClip(parent).currentLabel!="EASTCIRCLE") {
-						MovieClip(parent).gotoAndPlay("EASTCIRCLE");
+					
+					if(meatly==meat) {
+						setLabel("EASTCIRCLE");
 					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="EASTCIRCLE") {
+//						MovieClip(parent).gotoAndPlay("EASTCIRCLE");
+//					}
 				}
 			},
 			"plank": {
@@ -758,18 +810,25 @@
 				action: function(object:HotObject,meatly:Meatly):void {
 					meatly = setMeat(meatly.id,meatplank,"STOP");
 					meatly.scaleX = -Math.abs(meatly.scaleX);
-					if(meatly==meat&&MovieClip(parent).currentLabel!="PLANK") {
-						MovieClip(parent).gotoAndPlay("PLANK");
-					}					
+					
+					if(meatly==meat) {
+						setLabel("PLANK");
+					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="PLANK") {
+//						MovieClip(parent).gotoAndPlay("PLANK");
+//					}					
 				}
 			},
 			"backcircle": {
 				canWalkTo:true,
 				action: function(object:HotObject,meatly:Meatly):void {
 					meatly = setMeat(meatly.id,meat5,"STOP");
-					if(meatly==meat&&MovieClip(parent).currentLabel!="NORTHCIRCLE") {
-						MovieClip(parent).gotoAndPlay("NORTHCIRCLE");
+					if(meatly==meat) {
+						setLabel("NORTHCIRCLE");
 					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="NORTHCIRCLE") {
+//						MovieClip(parent).gotoAndPlay("NORTHCIRCLE");
+//					}
 				}
 			},
 			"gate": {
@@ -781,15 +840,21 @@
 			"leftdoor": {
 				canWalkTo: true,
 				action: function(object:HotObject,meatly:Meatly):void {
-					if(meatly==meat)
-						MovieClip(parent).gotoAndPlay(MovieClip(parent).currentLabel!="LEFTDOOR"?"LEFTDOOR":"LEFTDOORRIGHT");
+					if(meatly==meat) {
+						setLabel(MovieClip(root).currentLabel!="LEFTDOOR"?"LEFTDOOR":"LEFTDOORRIGHT");
+					}
+//					if(meatly==meat)
+//						MovieClip(parent(MovieClip(parent).currentLabel!="LEFTDOOR"?"LEFTDOOR":"LEFTDOORRIGHT");
 				}
 			},
 			"bigbutton": {
 				canWalkTo: true,
 				action: function(object:HotObject,meatly:Meatly):void {
-					if(meatly==meat&&MovieClip(parent).currentLabel!="LEFTDOOR")
-						MovieClip(parent).gotoAndPlay("LEFTDOOR");
+					if(meatly==meat) {
+						setLabel("LEFTDOOR");
+					}
+//					if(meatly==meat&&MovieClip(parent).currentLabel!="LEFTDOOR")
+//						MovieClip(parent).gotoAndPlay("LEFTDOOR");
 					bigbutton.steppedOn(meatly);
 				}
 			},
@@ -891,11 +956,14 @@
 						meatly = setMeat(meatly.id,meatlygoup);
 						meatly.play();
 						block(meatly);
+						if(meatly==meat) {
+							setLabel("LEVEL2");
+						}
 						(meatly as MeatlyGoUp).callback = function():void {
 							meatly = setMeat(meatly.id,walk2,"STOP");
 							unblock(meatly);
-							if(meat==meatly)
-								MovieClip(parent).gotoAndPlay("LEVEL2");							
+//							if(meat==meatly)
+//								MovieClip(parent).gotoAndPlay("LEVEL2");							
 						};
 						
 					}
@@ -918,6 +986,8 @@
 		
 		private var repeater:Object = {};
 		
+		static private var SFX:Boolean = true;
+		
 		private function addItem(item:String):void {
 			items[item] = true;
 			updateInventory();
@@ -926,6 +996,14 @@
 		private function removeItem(item:String):void {
 			delete items[item];
 			updateInventory();
+		}
+		
+		private function setLabel(label:Object,scene:String=null):void {
+			if(root) {
+				if(MovieClip(root).currentLabel!=label)
+					MovieClip(root).gotoAndPlay(label,scene);
+				rescueLabel	= ""+label;
+			}
 		}
 		
 		public function select(item:String):void {
@@ -996,12 +1074,25 @@
 				switch(e.keyCode) {
 					case Keyboard.ESCAPE:
 						global_history = [];
-						MovieClip(root).gotoAndPlay(1,"Intro");
+						setLabel(1,"Intro");
+//						MovieClip(root).gotoAndPlay(1,"Intro");
 						break;
 					case Keyboard.R:
 						recordItem(meat,"gun",null);
 						global_history.pop();
-						MovieClip(parent).gotoAndPlay(2,"ShootScene");
+						setLabel(2,"ShootScene");
+//						MovieClip(parent).gotoAndPlay(2,"ShootScene");
+						break;
+					case Keyboard.M:
+						SoundMixer.soundTransform = new SoundTransform(1-SoundMixer.soundTransform.volume);
+						break;
+					case Keyboard.S:
+						SoundMixer.soundTransform = new SoundTransform(1-SoundMixer.soundTransform.volume);
+						setTimeout(
+							function():void {
+								SoundMixer.soundTransform = new SoundTransform(1-SoundMixer.soundTransform.volume);
+							},1000);
+						SFX = !SFX;
 						break;
 				}
 			}
@@ -1194,6 +1285,8 @@
 			else if(script.action) {
 				if(script.canWalkTo) {
 					recordPress(meatly,object);
+					if(script.preaction as Function)
+						(script.preaction as Function).call(self,object,meatly);
 					(meatly as Dude).walkTo(object,
 						function(meatly:Meatly,object:HotObject):void {
 							if(object.occupied && object.activator==meat) {
@@ -1246,6 +1339,9 @@
 					if(script) {
 						if(script.canWalkTo && !object.blocked) {
 							recordPress(meatly,object);
+							if(script.preaction as Function)
+								(script.preaction as Function).call(self,object,meatly);
+							
 							(meatly as Dude).walkTo(object,
 								function(meatly:Meatly,object:HotObject):void {
 									//trace(object.occupied,object.model.name);
@@ -1285,8 +1381,9 @@
 			meatly = setMeat(meatly.id,rescue,"STOP");
 			meatly.x = x;
 			meatly.y = y;
-			if(MovieClip(root).currentLabel!=label)
-				MovieClip(root).gotoAndPlay(label);
+			setLabel(label);
+//			if(MovieClip(root).currentLabel!=label)
+//				MovieClip(root).gotoAndPlay(label);
 			unblock(meatly);
 		}
 		
