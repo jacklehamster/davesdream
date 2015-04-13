@@ -40,7 +40,10 @@
 							item.flyFrom(x,y);
 						}
 						visible = false;
-						Inventory.instance.updateInventory(Hero.instance.items);
+						var mainHero:Hero = Game.instance.mainHero;
+						if(mainHero) {
+							Inventory.instance.updateInventory(mainHero.items);
+						}
 					}
 				}
 				e.updateAfterEvent();

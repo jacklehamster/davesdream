@@ -12,7 +12,8 @@
 		public function Inventory() {
 			mouseEnabled = false;
 			instance = this;
-			updateInventory(Hero.instance.items);
+			var mainHero:Hero = Game.instance?Game.instance.mainHero:null;
+			updateInventory(mainHero?mainHero.items:[]);
 		}
 		
 		public function updateInventory(items:Array):void {
@@ -59,7 +60,10 @@
 				cursor.x = mouseX;
 				cursor.y = mouseY;
 			}
-			updateInventory(Hero.instance.items);
+			var mainHero:Hero = Game.instance.mainHero;
+			if(mainHero) {
+				updateInventory(mainHero.items);
+			}
 			Game.instance.resetHotspots();
 		}
 		

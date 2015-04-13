@@ -1,8 +1,9 @@
 ﻿package  {
+	import flash.events.EventDispatcher;
+	import flash.events.Event;
 	
-	public class Hero {
+	public class Hero extends EventDispatcher{
 
-		static public var instance:Hero = new Hero();
 		
 		public var items:Array = [];
 		
@@ -12,21 +13,21 @@
 		
 		public function resetInventory():void {
 			items = [];
-			pickupItem("timeRemote");
 		}
 		
 		public function pickupItem(item:String):void {
 			if(items.indexOf(item)<0) {
 				items.push(item);
+				dispatchEvent(new Event(Event.CHANGE));
 			}
-			Inventory.instance.updateInventory(items);
 		}
 		
 		public function dropItem(item:String):void {
 			var index:int = items.indexOf(item);
-			if(index>=0)
+			if(index>=0) {
 				items.splice(index);
-			Inventory.instance.updateInventory(items);
+				dispatchEvent(new Event(Event.CHANGE));
+			}
 		}
 		
 		public function hasItem(item:String):Boolean {

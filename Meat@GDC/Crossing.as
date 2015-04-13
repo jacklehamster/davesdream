@@ -33,7 +33,9 @@
 				},
 				"exitToPyramid": {
 					action: function(object:HotObject,dude:Dude):void {
-						gotoScene("ThePyramid");
+						dude.visible = false;
+						if(dude==mainCharacter)
+							gotoScene("ThePyramid");
 					}
 				},
 				"north" : {
@@ -43,7 +45,8 @@
 					},
 					end : function(object:HotObject,dude:Dude):void {
 						object.setLabel("STILL",false);
-						gotoScene("Giant",false);
+						if(dude==mainCharacter)
+							gotoScene("Giant",false);
 					}
 				},
 				"west" : {
@@ -53,7 +56,8 @@
 					},
 					end : function(object:HotObject,dude:Dude):void {
 						object.setLabel("STILL",false);
-						gotoScene("Balance",false);
+						if(dude==mainCharacter)
+							gotoScene("Balance",false);
 					}
 				}
 			};

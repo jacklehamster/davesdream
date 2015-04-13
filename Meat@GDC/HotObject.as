@@ -3,18 +3,28 @@
 	import flash.geom.Point;
 	import flash.display.DisplayObject;
 	
-	public class HotObject extends Element {
+	public class HotObject extends Element 
+		implements IHotObject
+	{
 
-		
 		private var _model:HotObject;
 		public var scriptRunning:Object;
 		public var activator:Dude;
 		
 		private var _hotPos:HotPos;
-		public var id:int = id_counter++;;
+		public var _id:int = id_counter++;;
 		static public var id_counter:int = 1;
 		
 		protected var callback:Function = null;
+
+		public function get id():int {
+			return _id;
+		}
+		
+		public function set id(value:int):void {
+			_id = value;
+		}
+		
 		
 		public function HotObject() {
 			stop();
@@ -44,15 +54,17 @@
 			return _model;
 		}
 		
-		public function setLabel(label:String,play:Boolean=true,callback:Function=null):void {
-			if(label!=currentLabel) {
-				if(play) {
-					gotoAndPlay(label);
-					this.callback = callback;
-				}
+		public function setLabel(label:String,doplay:Boolean=true,callback:Function=null):void {
+//			Debug.getStackTrace();
+			if(doplay) {
+				if(currentLabel==label)
+					play();
 				else
-					gotoAndStop(label);
+					gotoAndPlay(label);
+				this.callback = callback;
 			}
+			else
+				gotoAndStop(label);
 		}
 		
 		public function set active(value:Boolean):void {
@@ -108,16 +120,20 @@
 			return _hotPos;
 		}
 		
+		public function get hot():DisplayObject {
+			return hotPos ? hotPos : this;
+		}
+		
+		public function get walkPoint():DisplayObject {
+			return hot;
+		}
+		
 		public function canInteract(dude:Dude):Boolean {
 			return dude.distanceTo(this)<100;
 		}
 		
-		public function itemInteraction(item:String):void {
-			master.comboItem(this,master.mainCharacter,item);
-		}
-		
-		public function distanceTo(object:HotObject):Number {
-			var hot:DisplayObject = object.hotPos?object.hotPos:object;
+		public function distanceTo(object:IHotObject):Number {
+			var hot:DisplayObject = object.walkPoint;
 			var point:Point = master.globalToLocal(hot.localToGlobal(new Point()));
 			return Point.distance(point,new Point(x,y));
 		}
@@ -125,7 +141,22 @@
 		public function get direct():Boolean {
 			return false;
 		}
+		
+		public function setDirection(dir:Number):void {
+			if(scaleX*dir<0) {
+				scaleX = -scaleX;
+			}
+		}
+		
+		public function setPosition(hotObject:HotObject,direction:Number=0):void {
+			var hot:DisplayObject = hotObject.hot;
+			var point:Point = master.globalToLocal(hot.localToGlobal(new Point()));
+			x = point.x;
+			y = point.y;
+			setDirection(direction);
+		}
 
+		
 	}
 	
 }

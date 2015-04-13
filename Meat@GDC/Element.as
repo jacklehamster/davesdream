@@ -15,7 +15,7 @@
 			if(totalFrames>1) {
 				var previousInfo:Object = null;
 				for each(var label:FrameLabel in currentLabels) {
-					trace(label.name,label.frame,label);
+					//trace(label.name,label.frame,label);
 					if(previousInfo) {
 						previousInfo.end = label.frame-1;
 					}
@@ -38,6 +38,7 @@
 		}
 		
 		private function offStage(e:Event):void {
+			stop();
 			removeEventListener(Event.ENTER_FRAME,onFrame);
 		}
 		

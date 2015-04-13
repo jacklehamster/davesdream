@@ -15,8 +15,8 @@
 			activator = this;
 		}
 		
-		private function stopWalking(changeLabel:Boolean=true):void {
-			if(changeLabel)
+		public function stopWalking(changeLabel:Boolean=true):void {
+			if(changeLabel && currentLabel=="WALK")
 				setLabel("STAND");
 			removeEventListener(Event.ENTER_FRAME,onWalk);
 			goal = null;
@@ -24,32 +24,19 @@
 		}
 		
 		public function walkTo(hotObject:HotObject=null):void {
-			var hot:DisplayObject = hotObject.hotPos?hotObject.hotPos:hotObject;
+			var hot:DisplayObject = hotObject.walkPoint;
 			var point:Point = master.globalToLocal(hot.localToGlobal(new Point()));
 			if(goal) {
 				stopWalking(false);
 			}
-			setLabel("WALK");
+			setLabel(master && master.crawlScene?"CRAWL":"WALK");
 			goal = point;
 			goalObject = hotObject;
 			addEventListener(Event.ENTER_FRAME,onWalk);
 		}
 		
-		public function setDirection(dir:Number):void {
-			if(scaleX*dir<0) {
-				scaleX = -scaleX;
-			}
-		}
-		
-		public function setPosition(hotObject:HotObject,direction:Number=0):void {
-			var hot:DisplayObject = hotObject.hotPos ? hotObject.hotPos : hotObject;
-			var point:Point = master.globalToLocal(hot.localToGlobal(new Point()));
-			x = point.x;
-			y = point.y;
-			setDirection(direction);
-		}
-		
-		override public function follow(mover:DudeMover):void {
+
+		override public function follow(mover:IMover):void {
 			stopWalking(true);
 			super.follow(mover);
 		}
@@ -59,11 +46,13 @@
 			var dy:Number = goal.y-y;
 			var dist:Number = Math.sqrt(dx*dx+dy*dy);
 			var interactGoal:HotObject = null, reachedGoal:Boolean = false;
+			var didWalk:Boolean = false;
 			if(dist>1) {
 				var spd:Number = Math.min(dist,speed);
 				var mx:Number = dx/dist*spd;
 				var my:Number = dy/dist*spd;
-				if(master.canGo(x+mx,y+my)) {
+				if(master.canGo(e.currentTarget as Dude,x+mx,y+my)) {
+					didWalk = true;
 					x += mx;
 					y += my;
 					setDirection(dx);
@@ -100,10 +89,23 @@
 				}
 			}
 			
-			if(dudemover && distanceTo(dudemover)>100) {
+			if(didWalk && dudemover && distanceTo(dudemover)>100) {
 				setMover(null);
 			}
+			
+			if(master)
+				master.detect(e.currentTarget as Dude,x,y);
 		}
+		
+		override public function setDirection(dir:Number):void {
+			if(currentLabel=="CRAWLBLOCK") {
+				oozie.gotoAndStop(dir*scaleX>0?"LEFT":"RIGHT");
+			}
+			else {
+				super.setDirection(dir);
+			}
+		}
+		
 		
 		public function interact(hotObject:HotObject,fail:Boolean=false):void {
 			var item:String = usingItem;
@@ -120,12 +122,19 @@
 			var dude:Dude = this;
 			switch(item) {
 				case "timeRemote":
-					setLabel("TIMEREMOTE",true,
+					doomed = true;
+					master.preVanish(dude);
+					setLabel(currentLabel=="BURIED"?"BURIEDREMOTE":master.crawlScene?"CRAWLTIMEREMOTE":"TIMEREMOTE",true,
 						function():void {
+							dude.visible = false;
 							master.gameOver(dude);
 						});
 					break;
 			}
+		}
+		
+		public function get hero():Hero {
+			return ActionSpace.heroes[id];
 		}
 	}
 	

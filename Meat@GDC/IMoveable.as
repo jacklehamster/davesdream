@@ -2,10 +2,10 @@
 	
 	public interface IMoveable {
 
-		function setMover(mover:DudeMover):void;
-		function get mover():DudeMover;
+		function setMover(mover:IMover):void;
+		function get mover():IMover;
 		function get inTransit():Boolean;
-		function follow(mover:DudeMover):void;
+		function follow(mover:IMover):void;
 	}
 	
 }

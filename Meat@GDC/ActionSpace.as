@@ -9,10 +9,10 @@
 
 		protected var frame:int;
 		protected var registry:Object;
+		static public var heroes:Object = {};
 		private var repeater:Object;
 		private var history:Array;
 		static protected var global_history:Array = [];
-		static protected var itemStatus:Object = {};
 		
 		public function ActionSpace() {
 			addEventListener(Event.ADDED_TO_STAGE,onStage);
@@ -75,6 +75,15 @@
 			return dude;
 		}
 		
+		protected function createItem(modelName:String):HotObject {
+			var model:HotObject = getChildByName(modelName) as HotObject;
+			var object:HotObject = new (Object(model).constructor)();
+			object.model = model;
+			object.visible = true;
+			addChildAt(object,getChildIndex(model));
+			return object;
+		}
+		
 		private function performEvent(event:Object):void {
 			trace(JSON.stringify(event));
 			switch(event.action) {
@@ -107,6 +116,8 @@
 		
 		public function born(dude:Dude,attribute:Object = null):void {
 			registry[dude.id] = dude;
+			if(!heroes[dude.id])
+				heroes[dude.id] = new Hero();
 			addHistory(frame,
 				{
 					id:dude.id,
@@ -119,6 +130,8 @@
 		
 		private function _born(dude:Dude):void {
 			registry[dude.id] = dude;
+			if(!heroes[dude.id])
+				heroes[dude.id] = new Hero();
 		}
 		
 		public function disappear(dude:Dude):void {
@@ -141,25 +154,21 @@
 			);
 		}
 		
-		public function itemAction(dude:Dude,hotObject:HotObject,item:String):void {
-			addHistory(frame,
-				{
-					id:dude.id,
-					action:"item",
-					model:hotObject==dude?null:hotObject.model.name,
-					item:item
-				}
-			);
-		}
-		
 		private function _disappear(dude:Dude):void {
 			if(dude) {
 				dude.stop();
 				dude.visible = false;
+				if(dude.hero)
+					dude.hero.resetInventory();
 				if(dude.parent)
 					dude.parent.removeChild(dude);
 				delete registry[dude.id];
+				delete heroes[dude.id];
 			}
+		}
+		
+		protected function cantAccess(dude:Dude,hotObject:HotObject):Boolean {
+			return false;
 		}
 		
 		private function _mouseAction(dude:Dude,hotObject:HotObject,item:String):void {
@@ -167,13 +176,10 @@
 			}
 			else if(dude && hotObject) {
 				dude.usingItem = item;
-				if(dude.inTransit || hotObject.direct) {
+				if(dude.inTransit || hotObject.direct || cantAccess(dude,hotObject)) {
 					var hot:DisplayObject = hotObject.hotPos ? hotObject.hotPos : hotObject;
 					var point:Point = globalToLocal(hot.localToGlobal(new Point()));
-					var dx:Number = dude.x - point.x;
-					if(dude.scaleX*dx<0) {
-						dude.scaleX = -dude.scaleX;
-					}
+					dude.setDirection(point.x-dude.x);
 					if(hotObject.direct) {
 						dude.interact(hotObject);
 					}
@@ -183,6 +189,7 @@
 				}
 			}
 			else if(dude && item) {
+				trace(dude,item);
 				dude.useItem(item);
 			}
 		}

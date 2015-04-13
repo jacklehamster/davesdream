@@ -120,8 +120,10 @@
 					},
 					"end": function(object:HotObject,dude:Dude):void {
 						entrance.setLabel("STILL",false);
-						solveLevel();
-						gotoScene("Crossing");
+						if(dude==mainCharacter) {
+							solveLevel();
+							gotoScene("Crossing");
+						}
 					}
 				},
 				"door": {

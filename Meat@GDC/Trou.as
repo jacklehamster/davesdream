@@ -6,8 +6,8 @@
 	public class Trou extends HotObject {
 		
 		
-		public function Trou() {
-			// constructor code
+		override public function get direct():Boolean {
+			return true;
 		}
 	}
 	

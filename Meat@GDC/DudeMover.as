@@ -4,9 +4,9 @@
 	import flash.geom.Point;
 	
 	
-	public class DudeMover extends HotObject {
+	public class DudeMover extends Mover 
+	{
 		
-		public var moveables:Object = {};
 		private var _hotDests:Array = [];
 		public var speed:Number = 5;
 		private var location:int = 0;
@@ -35,10 +35,6 @@
 			return _locationGoal;
 		}
 		
-		public function get inTransit():Boolean {
-			return intransit;
-		}
-		
 		override protected function refresh():void {
 			if(location!=_locationGoal || intransit) {
 				intransit = true;
@@ -62,6 +58,10 @@
 					moveable.follow(this);
 				}
 			}
+		}
+		
+		override public function get inTransit():Boolean {
+			return intransit;
 		}
 	}
 	

@@ -35,7 +35,7 @@
 				},
 				"balancecheat": {
 					action: function(object:HotObject,dude:Dude):void {
-						gotoScene("Balance",false);
+						gotoScene("Giant",false);
 					}
 				},
 				"dude2" : {
@@ -51,8 +51,10 @@
 					},
 					end : function(object:HotObject,dude:Dude):void {
 						object.setLabel("STILL",false);
-						solveLevel();
-						gotoScene("ThePyramid");
+						if(dude==mainCharacter) {
+							solveLevel();
+							gotoScene("ThePyramid");
+						}
 					}
 				},
 				"switch1" : {

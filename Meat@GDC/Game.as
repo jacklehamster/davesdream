@@ -6,7 +6,7 @@
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.setTimeout;
-	import fl.transitions.easing.Strong;
+	import flash.display.DisplayObject;
 	
 	
 	public class Game extends ActionSpace {
@@ -17,7 +17,8 @@
 		public var mainCharacter:Dude;
 		
 		protected var scripts:Object = {};
-		private var blockedAreas:Array = [];
+		private var blockedAreas:Object = {};
+		private var detectAreas:Object = {};
 		
 		static public var currentLevel:String;
 		static protected var lastLevel:String;
@@ -25,15 +26,19 @@
 		static public var instance:Game;
 		
 		static public var levelsToSolve:Array = [];
+		public var crawlScene:Boolean = false;
 		
 		public function Game() {
 			addEventListener(Event.ADDED_TO_STAGE,onStage);
 			addEventListener(Event.REMOVED_FROM_STAGE,offStage);
 			
 			for(var i:int=0;i<numChildren;i++) {
-				if(getChildAt(i) is Blocker) {
-					var rect:Rectangle = getChildAt(i).getRect(this);
-					blockedAreas.push(rect);
+				var child:DisplayObject = getChildAt(i);
+				if(child is Blocker) {
+					blockedAreas[child.name] = child.getRect(this);
+				}
+				if(child is Detector) {
+					detectAreas[child.name] = child.getRect(this);
 				}
 			}
 		}
@@ -64,30 +69,41 @@
 				clearHistory();
 			}
 			
-			
 			if(!scripts.scene.noFadein)
 				MovieClip(root).addChild(new FadeIn());
 			if(scripts.scene && scripts.scene.initialize) {
 				scripts.scene.initialize();
 			}
+			mainHero.addEventListener(Event.CHANGE,onInventoryChange);
+			if(!scripts.scene.noNeedsRemote) {
+				mainHero.pickupItem("timeRemote");
+			}
+			
+			
 			persisted_id = 0;
 		}
 		
 		public function gameOver(dude:Dude):void {
 			var script:Object = scripts[dude.model.name];
-			if(script.preDestroy) {
+			if(script && script.preDestroy) {
 				script.preDestroy(dude);
 			}
 			if(dude==mainCharacter) {
+				mainHero.removeEventListener(Event.CHANGE,onInventoryChange);
 				setDude(null,dude.id);
 				disappear(dude);
+				Inventory.instance.updateInventory([]);
+				ActionSpace.heroes = {};
 				MovieClip(root).addChild(new FadeOut(
 					function():void {
-						Hero.instance.resetInventory();
 						MovieClip(root).gotoAndPlay(1,"ResetLevel");
 					}
 				));
 			}
+		}
+		
+		private function onInventoryChange(e:Event):void {
+			inventory.updateInventory(mainHero.items);
 		}
 		
 		private function onStage(e:Event):void {
@@ -100,13 +116,15 @@
 		}
 		
 		private function offStage(e:Event):void {
+			if(mainHero)
+				mainHero.removeEventListener(Event.CHANGE,onInventoryChange);
 			stage.removeEventListener(MouseEvent.MOUSE_DOWN,onMouse);
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE,onMouse);
 		}
 		
 		private function onMouse(e:MouseEvent):void {
 			if(e.buttonDown) {
-				if(mainCharacter) {
+				if(mainCharacter && mainCharacter.visible) {
 					var hotObject:HotObject = e.target as HotObject;
 					if(hotObject) {
 						var item:String = inventory.activeItem;
@@ -118,6 +136,14 @@
 					}
 				}
 			}
+		}
+		
+		override protected function cantAccess(dude:Dude,hotObject:HotObject):Boolean {
+			var script:Object = scripts[hotObject.model.name];
+			if(script && script.cantAccess && script.cantAccess(hotObject,dude)) {
+				return true;
+			}
+			return false;
 		}
 		
 		protected function setDude(name:String,id:int):Dude {
@@ -152,33 +178,26 @@
 			var dude:Dude = mainCharacter;
 			if(dude) {
 				var script:Object = scripts[dude.model.name];
-				if(script) {
-					var hotspots:Array = script.hotspots;
-					if(hotspots) {
-
-						var sceneHotSpots = scripts.scene.hotspots;
-						if(sceneHotSpots) {
-							hotspots = hotspots.concat(sceneHotSpots);
-						}
-						
-						var hash:Object = {};
-						for each(var spot:String in hotspots) {
-							hash[spot] = true;
-						}
-						for(var i:int=0;i<numChildren;i++) {
-							var hotSpot:HotObject = getChildAt(i) as HotObject;
-							if(hotSpot) {
-								hotSpot.active = hash[hotSpot.model.name] ||
-									hotSpot==mainCharacter && Inventory.instance.activeItem;
-							}
-						}
-					}
-					else {
-						trace("NO HOTSPOTS FOR",dude.model.name);
-					}
+				var hotspots:Array = script?script.hotspots:null;
+				if(!hotspots) {
+					hotspots = [];
+					trace("NO SCRIPT OR NO HOTSPOTS FOR",dude.model.name);
 				}
-				else {
-					trace("NO SCRIPT FOR",dude.model.name);
+				var sceneHotSpots = scripts.scene.hotspots;
+				if(sceneHotSpots) {
+					hotspots = hotspots.concat(sceneHotSpots);
+				}
+				
+				var hash:Object = {};
+				for each(var spot:String in hotspots) {
+					hash[spot] = true;
+				}
+				for(var i:int=0;i<numChildren;i++) {
+					var hotSpot:HotObject = getChildAt(i) as HotObject;
+					if(hotSpot) {
+						hotSpot.active = hash[hotSpot.model.name] ||
+							hotSpot==mainCharacter && inventory && inventory.activeItem;
+					}
 				}
 			}
 		}
@@ -187,9 +206,7 @@
 			if(script.end) {
 				script.end.call(this,hotObject,dude);
 			}
-			if(mainCharacter && dude.id==mainCharacter.id) {
-				unblock();
-			}
+			unblock(dude);
 		}
 		
 		public function activateScript(script:Object,hotObject:HotObject,dude:Dude):void {
@@ -215,7 +232,7 @@
 			
 			var script:Object = scripts[hotObject.model.name];
 			if(script) {
-				if(script.action) {
+				if(script.action || item && script.combo) {
 					if(hotObject.scriptRunning) {
 						if(hotObject.activator==mainCharacter) {
 							hotObject.cancel();
@@ -228,16 +245,17 @@
 					hotObject.scriptRunning = script;
 					hotObject.activator = dude;
 					if(!item) {
+						if(script.end) {
+							block(dude);
+						}
 						script.action.call(this,hotObject,dude);
 					}
 					else {
-						var subscript:Object = script[item];
+						var subscript:Object = script.combo ? script.combo[item] : null;
 						if(subscript && subscript.action) {
+							hotObject.scriptRunning = subscript;
 							subscript.action.call(this,hotObject,dude);
 						}
-					}
-					if(mainCharacter && dude.id==mainCharacter.id && script.end) {
-						block();
 					}
 				}
 				else {
@@ -249,26 +267,26 @@
 			}
 		}
 		
-		public function comboItem(hotObject:HotObject,dude:Dude,item:String):void {
-			itemAction(dude,hotObject,item);
+		public function block(dude:Dude):void {
+			if(mainCharacter && dude.id==mainCharacter.id) {
+				mouseChildren = false;
+				if(inventory)
+					inventory.mouseChildren = false;
+			}
 		}
 		
-		private function block():void {
-			mouseChildren = false;
-			if(inventory)
-				inventory.mouseChildren = false;
-		}
-		
-		private function unblock():void {
-			mouseChildren = true;
-			if(inventory)
-				inventory.mouseChildren = true;
+		public function unblock(dude:Dude):void {
+			if(mainCharacter && dude.id==mainCharacter.id) {
+				mouseChildren = true;
+				if(inventory)
+					inventory.mouseChildren = true;
+			}
 		}
 		
 		private function rescue():void {
 			mainCharacter.doomed = false;
 			mainCharacter.visible = true;
-			unblock();
+			unblock(mainCharacter);
 		}
 		
 		public function failaction(hotObject:HotObject,dude:Dude,item:String):void {
@@ -291,17 +309,51 @@
 			}
 		}
 		
-		public function canGo(x:Number,y:Number):Boolean {
-			for each(var rect:Rectangle in blockedAreas) {
+		public function canGo(dude:Dude,x:Number,y:Number):Boolean {
+			for (var name:String in blockedAreas) {
+				var rect:Rectangle = blockedAreas[name];
 				if(rect.contains(x,y)) {
 					return false;
 				}
 			}
+			var script:Object = scripts[dude.model.name];
+			if(script && script.cantWalk && script.cantWalk(dude))
+				return false;
 			return true;
 		}
 		
+		public function detect(dude:Dude,x:Number,y:Number):void {
+			for (var name:String in detectAreas) {
+				var rect:Rectangle = detectAreas[name];
+				if(rect.contains(x,y)) {
+					var script:Object = scripts[name];
+					if(script && script.detect) {
+						script.detect(dude);
+					}
+				}
+			}
+		}
+		
+		public function preVanish(dude:Dude):void  {
+			var script:Object = scripts[dude.model.name];
+			if(script && script.preVanish)
+				script.preVanish(dude);
+		}
+		
+		protected function caught(detectorName:String):Array {
+			var array:Array = [];
+			var rect:Rectangle = detectAreas[detectorName];
+			for(var i:int=0;i<numChildren;i++) {
+				var dude:Dude = getChildAt(i) as Dude;
+				if(dude && !dude.doomed && dude.currentLabel!="BURIED" && rect.contains(dude.x,dude.y)) {
+					array.push(dude);
+				}
+			}
+			return array;
+		}
+		
 		public function gotoScene(scene:String,fade:Boolean=true):void {
-			block();
+			block(mainCharacter);
 			
 			lastLevel = currentLevel;
 
@@ -333,6 +385,10 @@
 			var level:String = MovieClip(root).currentScene.name;
 			var levelIndex:int = getLevelIndex(level);
 			return levelsToSolve[levelIndex] && levelsToSolve[levelIndex].solved;
+		}
+		
+		public function get mainHero():Hero {
+			return mainCharacter ? mainCharacter.hero : null;
 		}
 	}
 	
