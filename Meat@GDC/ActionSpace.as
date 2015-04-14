@@ -3,6 +3,7 @@
 	import flash.geom.Point;
 	import flash.events.Event;
 	import flash.display.DisplayObject;
+	import com.newgrounds.encoders.json.encodeJson;
 	
 	public class ActionSpace extends MovieClip {
 
@@ -25,6 +26,11 @@
 			history = [];
 		}
 		
+		protected function undo():void {
+			var event:Object = history.pop();
+//			trace("undo",encodeJson(event));
+		}
+		
 		private function onStage(e:Event):void {
 			frame = 0;
 			registry = {};
@@ -43,6 +49,13 @@
 					repeater[entry.frame].push(entry);
 				}
 			}
+/*			trace("------------");
+			trace("------------");
+			trace(encodeJson(global_history));
+			trace("------------");
+			trace(encodeJson(repeater));
+			trace("------------");
+			trace("------------");*/
 		}
 		
 		private function offStage(e:Event):void {
@@ -85,7 +98,7 @@
 		}
 		
 		private function performEvent(event:Object):void {
-			trace(JSON.stringify(event));
+			trace(encodeJson(event));
 			switch(event.action) {
 				case "born":
 					if(!registry[event.id]) {
@@ -111,6 +124,7 @@
 				repeater[frame] = [];
 			}
 			repeater[frame].push(event);
+//			trace("ADDHISTORY",frame,encodeJson(event),encodeJson(repeater));
 		}
 		
 		
@@ -189,7 +203,6 @@
 				}
 			}
 			else if(dude && item) {
-				trace(dude,item);
 				dude.useItem(item);
 			}
 		}

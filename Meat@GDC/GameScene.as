@@ -33,11 +33,6 @@
 						dude.setPosition(exit);
 					}
 				},
-				"balancecheat": {
-					action: function(object:HotObject,dude:Dude):void {
-						gotoScene("Giant",false);
-					}
-				},
 				"dude2" : {
 					hotspots: [
 						"leftPlatform1",

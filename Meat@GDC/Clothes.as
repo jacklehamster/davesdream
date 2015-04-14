@@ -40,7 +40,7 @@
 				}
 			}
 			if(dude) {
-				gotoAndStop(1+((dude.id+totalFrames-1)%totalFrames));
+				gotoAndStop(1+((dude.id-7+totalFrames)%totalFrames));
 			}
 		}
 	}

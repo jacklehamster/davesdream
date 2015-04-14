@@ -61,6 +61,17 @@
 						rightped.supports--;
 					}
 				},
+				"ground": {
+					failaction : function(object:HotObject,dude:Dude):void {
+						trace(dude.model);
+						if(dude.model==dudepedright) {
+							mouseAction(dude,rightped,null);
+						}
+						else if(dude.model==dudepedleft) {
+							mouseAction(dude,leftped,null);
+						}
+					}
+				},
 				"leftped": {
 					action : function(object:HotObject,dude:Dude):void {
 						dude.visible = false;

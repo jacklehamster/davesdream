@@ -7,6 +7,7 @@
 		
 		
 		public function BalanceScene() {
+			
 			scripts = {
 				scene: {
 					noFadein:true,
@@ -62,7 +63,7 @@
 				},
 				"ledge": {
 					action: function(object:HotObject,dude:Dude):void {
-						if(balance.pos>.85 || balance.pos<.1) {
+/*						if(balance.pos>.85 || balance.pos<.1) {
 							dude.setDirection(1);
 							dude.setLabel("LOOKUP",true,
 								function():void {
@@ -70,11 +71,11 @@
 									unblock(dude);
 								});
 						}
-						else {
+						else {*/
 							dude.setMover(null);
 							dude.visible = false;
 							object.setLabel(dude.model.name=="duderight"?"JUMPON":"STEPON");
-						}
+//						}
 					},
 					end : function(object:HotObject,dude:Dude):void {
 						dude = setDude("dude1",dude.id);
@@ -139,7 +140,6 @@
 							dude.setLabel("LOOKUP",true,
 								function():void {
 									dude.setLabel("STAND",false);
-									unblock(dude);
 								});
 						}
 						else {
@@ -170,7 +170,6 @@
 				},
 				"topplate": {
 					action : function(object:HotObject,dude:Dude):void {
-						trace(balance.pos);
 						dude.visible = false;
 						object.setLabel("JUMPIN");
 					},
@@ -182,12 +181,10 @@
 					combo: {
 						"rock": {
 							action: function(object:HotObject,dude:Dude):void {
-								block(dude);
 								dude.setDirection(-1);
 								dude.hero.dropItem("rock");
 								dude.setLabel("THROWROCK",true,
 									function(dude:Dude):void {
-										unblock(dude);
 										var anim:HotAnimation = new FlyingRock();
 										addChildAt(anim,getChildIndex(dudeleft));
 										anim.x = object.x;
@@ -209,7 +206,7 @@
 				},
 				"bottomplate": {
 					action : function(object:HotObject,dude:Dude):void {
-						trace(balance.pos);
+//						trace(balance.pos);
 						dude.visible = false;
 						object.setLabel("JUMPIN");
 					},
@@ -222,12 +219,10 @@
 					combo: {
 						"rock": {
 							action: function(object:HotObject,dude:Dude):void {
-								block(dude);
 								dude.setDirection(1);
 								dude.hero.dropItem("rock");
 								dude.setLabel("THROWROCK",true,
 									function(dude:Dude):void {
-										unblock(dude);
 										var anim:HotAnimation = new FlyingRock2();
 										var scaleRatio:Number = Math.abs(duderight.scaleX / dude1.scaleX);
 										anim.scaleX = anim.scaleY = anim.scaleX*scaleRatio;

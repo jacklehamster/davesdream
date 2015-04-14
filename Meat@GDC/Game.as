@@ -7,6 +7,7 @@
 	import flash.geom.Rectangle;
 	import flash.utils.setTimeout;
 	import flash.display.DisplayObject;
+	import com.newgrounds.encoders.json.encodeJson;
 	
 	
 	public class Game extends ActionSpace {
@@ -75,7 +76,7 @@
 				scripts.scene.initialize();
 			}
 			mainHero.addEventListener(Event.CHANGE,onInventoryChange);
-			if(!scripts.scene.noNeedsRemote) {
+			if(!scripts.scene.noNeedRemote) {
 				mainHero.pickupItem("timeRemote");
 			}
 			
@@ -108,11 +109,12 @@
 		
 		private function onStage(e:Event):void {
 			instance = this;
-			MovieClip(root).stop();
 			currentLevel = MovieClip(root).currentScene.name;
 			initialize();
 			stage.addEventListener(MouseEvent.MOUSE_DOWN,onMouse);
 			stage.addEventListener(MouseEvent.MOUSE_MOVE,onMouse);
+			if(!scripts.scene.nonStop)
+				MovieClip(root).stop();
 		}
 		
 		private function offStage(e:Event):void {
@@ -202,11 +204,10 @@
 			}
 		}
 		
-		public function finishScript(script:Object,hotObject:HotObject,dude:Dude):void {
+		public function finishScript(script:Object,hotObject:HotObject,dude:Dude):void {			
 			if(script.end) {
 				script.end.call(this,hotObject,dude);
 			}
-			unblock(dude);
 		}
 		
 		public function activateScript(script:Object,hotObject:HotObject,dude:Dude):void {
@@ -232,9 +233,12 @@
 			
 			var script:Object = scripts[hotObject.model.name];
 			if(script) {
-				if(script.action || item && script.combo) {
+				if(script.action || item && script.combo && script.combo[item]) {
 					if(hotObject.scriptRunning) {
-						if(hotObject.activator==mainCharacter) {
+						if(hotObject.activator==dude) {
+							return;
+						}
+						else if(hotObject.activator==mainCharacter) {
 							hotObject.cancel();
 							rescue();
 						}
@@ -245,9 +249,6 @@
 					hotObject.scriptRunning = script;
 					hotObject.activator = dude;
 					if(!item) {
-						if(script.end) {
-							block(dude);
-						}
 						script.action.call(this,hotObject,dude);
 					}
 					else {
@@ -267,40 +268,39 @@
 			}
 		}
 		
-		public function block(dude:Dude):void {
-			if(mainCharacter && dude.id==mainCharacter.id) {
-				mouseChildren = false;
-				if(inventory)
-					inventory.mouseChildren = false;
-			}
-		}
-		
-		public function unblock(dude:Dude):void {
-			if(mainCharacter && dude.id==mainCharacter.id) {
-				mouseChildren = true;
-				if(inventory)
-					inventory.mouseChildren = true;
-			}
-		}
-		
 		private function rescue():void {
 			mainCharacter.doomed = false;
 			mainCharacter.visible = true;
-			unblock(mainCharacter);
+			undo();
 		}
 		
 		public function failaction(hotObject:HotObject,dude:Dude,item:String):void {
 			var script:Object = scripts[hotObject.model.name];
-			if(script) {
-				if(script.failaction) {
-					if(!item) {
+			if(script || item && script.combo && script.combo[item]) {
+				if(hotObject.scriptRunning) {
+					if(hotObject.activator==dude) {
+						return;
+					}
+					else if(hotObject.activator==mainCharacter) {
+						hotObject.cancel();
+						rescue();
+					}
+					else if(dude==mainCharacter) {
+						return;
+					}
+				}
+				hotObject.scriptRunning = script;
+				hotObject.activator = dude;
+				if(!item) {
+					if(script.failaction) {
 						script.failaction.call(this,hotObject,dude);
 					}
-					else {
-						var subscript:Object = script[item];
-						if(subscript && subscript.failaction) {
-							subscript.failaction.call(this,hotObject,dude);
-						}
+				}
+				else {
+					var subscript:Object = script.combo[item];
+					if(subscript && subscript.failaction) {
+						hotObject.scriptRunning = subscript;
+						subscript.failaction.call(this,hotObject,dude);
 					}
 				}
 			}
@@ -313,6 +313,10 @@
 			for (var name:String in blockedAreas) {
 				var rect:Rectangle = blockedAreas[name];
 				if(rect.contains(x,y)) {
+					script = scripts[name];
+					if(script && script.inactive && script.inactive(dude)) {
+						continue;
+					}
 					return false;
 				}
 			}
@@ -353,8 +357,6 @@
 		}
 		
 		public function gotoScene(scene:String,fade:Boolean=true):void {
-			block(mainCharacter);
-			
 			lastLevel = currentLevel;
 
 			var func:Function = function():void {

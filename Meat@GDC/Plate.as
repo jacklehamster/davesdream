@@ -46,6 +46,10 @@
 			balance.updateBalance();
 		}
 		
+		override public function canInteract(dude:Dude):Boolean {
+			return true;
+		}
+		
 		public function get weight():Number {
 			var w:Number = .3;
 			for each(var moveable:IMoveable in moveables) {

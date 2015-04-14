@@ -94,11 +94,9 @@
 							if(dudes.length<3) {
 								for each(var dude:Dude in dudes) {
 									dude.stopWalking(false);
-									block(dude as Dude);
 									dude.setLabel("BURY",true,
 										function(dude:HotObject):void {
 											dude.setLabel("BURIED",false);
-											unblock(dude as Dude);
 										});
 								}
 								crusher.setLabel("CRUSH",true,

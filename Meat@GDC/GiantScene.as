@@ -1,12 +1,14 @@
 ﻿package  {
 	
 	import flash.display.MovieClip;
+	import flash.geom.Point;
 	
 	
 	public class GiantScene extends Game {
 		
 		
 		public function GiantScene() {
+			var spearLanding:Point = new Point();
 			scripts = {
 				scene: {
 					noFadein:true,
@@ -15,6 +17,7 @@
 						born(dude);
 						mouseAction(dude,dude1,null);
 						spear.visible = false;
+						spearLanding = new Point(spear.x,spear.y);
 					},
 					hotspots: [
 						"cheat"
@@ -24,11 +27,23 @@
 					hotspots: [
 						"exitToCrossing",
 						"gianthand",
-						"giant",
-						"spear"
+						"spear",
+						"caged"
 					],
 					action : function(object:HotObject,dude:Dude):void {
 						dude = setDude("dude1",dude.id);
+					},
+					preDestroy: function(dude:Dude):void {
+						if(dude.hero.hasItem("spear")) {
+							spear.visible = true;
+							spear.setPosition(dude);
+							setChildIndex(spear,getChildIndex(dude));
+							spear.setLabel("DROP",true,
+								function():void {
+									spear.setLabel("STILL",false);
+									resetHotspots();
+								});
+						}
 					}
 				},
 				"cheat": {
@@ -59,6 +74,10 @@
 								object.setLabel("PICKGIANT");
 
 							},
+							failaction : function(object:HotObject,dude:Dude):void {
+								dude.visible = false;
+								object.setLabel("PICKGIANTLEFT");
+							},
 							end : function(object:HotObject,dude:Dude):void {
 								dude.visible = true;
 								object.visible = false;
@@ -75,8 +94,6 @@
 							giant.usable = false;
 							object.setLabel("GRAB");
 						}
-						else
-							unblock(dude);
 					},
 					activate: function(object:HotObject,dude:Dude):void {
 						dude.visible = false;
@@ -89,12 +106,19 @@
 							function():void {
 								removeChild(anim);
 								spear.visible = true;
+								spear.x = spearLanding.x;
+								spear.y = spearLanding.y;
 							});
 					},
 					end : function(object:HotObject,dude:Dude):void {
 						object.setLabel("CARESS",false);
 						dude = setDude("dudeinvis",dude.id);
 						dude.alpha = 0;
+					}
+				},
+				"handblock": {
+					inactive : function(dude:Dude):Boolean {
+						return !gianthand.visible;
 					}
 				},
 				"spear": {
@@ -106,6 +130,7 @@
 						dude.visible = true;
 						object.visible = false;
 						dude.hero.pickupItem("spear");
+						object.setLabel("STILL");
 					}
 				},
 				"dudeinvis": {
@@ -121,6 +146,13 @@
 									});
 							});
 						}
+					}
+				},
+				"caged": {
+					action : function(object:HotObject,dude:Dude):void {
+						
+					},
+					end: function(object:HotObject,dude:Dude):void {
 					}
 				}
 			};
