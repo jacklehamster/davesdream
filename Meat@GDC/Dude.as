@@ -110,6 +110,7 @@
 		public function interact(hotObject:HotObject,fail:Boolean=false):void {
 			var item:String = usingItem;
 			usingItem = null;
+			Wearable.fullUpdate(this);
 			if(fail) {
 				master.failaction(hotObject,this,item);
 			}

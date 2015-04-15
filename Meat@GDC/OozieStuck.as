@@ -17,7 +17,7 @@
 					if(h) {
 						id = h.activator.id;
 	//					activator = (parent is HotObject) ? (parent as HotObject).activator : null;
-						Clothes.updateClothes((e.currentTarget as Dude));
+						Wearable.fullUpdate((e.currentTarget as Dude));
 					}
 				});
 		}

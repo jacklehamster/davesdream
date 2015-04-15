@@ -35,15 +35,15 @@
 						}						
 					},
 					hotspots: [
-						"cheat",
-						"rock"
+						"cheat"
 					]
 				},
 				"dude1" : {
 					hotspots: [
 						"exitToCrossing",
 						"topplate",
-						"bottomplate"
+						"bottomplate",
+						"rock"
 					],
 					action : function(object:HotObject,dude:Dude):void {
 						dude = setDude("dude1",dude.id);
@@ -148,10 +148,7 @@
 						}
 					},
 					end : function(object:HotObject,dude:Dude):void {
-						if(dude==mainCharacter) {
-							solveLevel();
-							gotoScene("Alley");
-						}
+						gotoScene("Alley",dude,true,true);
 					}
 				},
 				"rock": {
@@ -185,6 +182,7 @@
 								dude.hero.dropItem("rock");
 								dude.setLabel("THROWROCK",true,
 									function(dude:Dude):void {
+										dude.setLabel("STAND",false);
 										var anim:HotAnimation = new FlyingRock();
 										addChildAt(anim,getChildIndex(dudeleft));
 										anim.x = object.x;
@@ -223,6 +221,7 @@
 								dude.hero.dropItem("rock");
 								dude.setLabel("THROWROCK",true,
 									function(dude:Dude):void {
+										dude.setLabel("STAND",false);
 										var anim:HotAnimation = new FlyingRock2();
 										var scaleRatio:Number = Math.abs(duderight.scaleX / dude1.scaleX);
 										anim.scaleX = anim.scaleY = anim.scaleX*scaleRatio;
@@ -250,8 +249,7 @@
 				"exitToCrossing": {
 					action: function(object:HotObject,dude:Dude):void {
 						dude.visible = false;
-						if(dude==mainCharacter)
-							gotoScene("Crossing",false);
+						gotoScene("Crossing",dude,false,false);
 					}
 				}
 			};

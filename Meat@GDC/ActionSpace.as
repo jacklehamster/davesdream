@@ -81,7 +81,7 @@
 			if(id) {
 				dude.id = id;
 			}
-			Clothes.updateClothes(dude);
+			Wearable.fullUpdate(dude);
 			dude.model = model;
 			dude.visible = true;
 			addChildAt(dude,getChildIndex(model));
@@ -98,7 +98,7 @@
 		}
 		
 		private function performEvent(event:Object):void {
-			trace(encodeJson(event));
+			trace(encodeJson(event),registry[event.id] ? registry[event.id].model.name : "---");
 			switch(event.action) {
 				case "born":
 					if(!registry[event.id]) {

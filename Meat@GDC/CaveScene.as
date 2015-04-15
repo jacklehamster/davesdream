@@ -40,9 +40,7 @@
 						dude.visible = false;
 						enterCave.setLabel("EXIT",true,
 							function():void {
-								if(dude==mainCharacter) {
-									gotoScene("Alley",false);
-								}
+								gotoScene("Alley",dude,false,false);
 							});
 					}
 				},

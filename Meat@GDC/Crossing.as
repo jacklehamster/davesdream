@@ -25,6 +25,7 @@
 					hotspots: [
 						"north",
 						"west",
+						"east",
 						"exitToPyramid"
 					],
 					action : function(object:HotObject,dude:Dude):void {
@@ -34,8 +35,7 @@
 				"exitToPyramid": {
 					action: function(object:HotObject,dude:Dude):void {
 						dude.visible = false;
-						if(dude==mainCharacter)
-							gotoScene("ThePyramid");
+						gotoScene("ThePyramid",dude,false,true);
 					}
 				},
 				"north" : {
@@ -45,8 +45,7 @@
 					},
 					end : function(object:HotObject,dude:Dude):void {
 						object.setLabel("STILL",false);
-						if(dude==mainCharacter)
-							gotoScene("Giant",false);
+						gotoScene("Giant",dude,false,false);
 					}
 				},
 				"west" : {
@@ -56,8 +55,17 @@
 					},
 					end : function(object:HotObject,dude:Dude):void {
 						object.setLabel("STILL",false);
-						if(dude==mainCharacter)
-							gotoScene("Balance",false);
+						gotoScene("Balance",dude,false,false);
+					}
+				},
+				"east" : {
+					action: function(object:HotObject,dude:Dude):void {
+						dude.visible = false;
+						object.setLabel("EXIT");
+					},
+					end : function(object:HotObject,dude:Dude):void {
+						object.setLabel("STILL",false);
+						gotoScene("Precipice",dude,false,false);
 					}
 				}
 			};

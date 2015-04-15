@@ -156,6 +156,11 @@
 			setDirection(direction);
 		}
 
+		override protected function refresh():void {
+			if(scriptRunning && scriptRunning.refresh) {
+				master.refresh(this,activator);
+			}
+		}
 		
 	}
 	

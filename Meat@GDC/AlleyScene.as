@@ -67,10 +67,7 @@
 					},
 					action: function(object:HotObject,dude:Dude):void {
 						dude.visible = false;
-						if(dude==mainCharacter) {
-							solveLevel();
-							gotoScene("Cave",false);
-						}
+						gotoScene("Cave",dude,true,false);
 					}
 				},
 				"toBalance": {
@@ -79,8 +76,7 @@
 					},
 					action: function(object:HotObject,dude:Dude):void {
 						dude.visible = false;
-						if(dude==mainCharacter)
-							gotoScene("Balance",false);
+						gotoScene("Balance",dude,false,false);
 					}
 				},
 				"trap": {

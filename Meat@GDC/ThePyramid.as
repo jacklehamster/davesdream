@@ -12,13 +12,24 @@
 					initialize : function():void {
 						var dude:Dude = setDude("dude0",persisted_id);
 						born(dude);
-						if(lastLevel=="Crossing") {
-							dude.setPosition(door);
-						}
-						mouseAction(dude,dude1,null);
-						if(solvedLevel) {
+						if(dude.hero.state.ridingCreature) {
+							dude.visible = false;
 							leftped.supports++;
 							rightped.supports++;
+							creatureEscape.visible = true;
+							mouseAction(dude,creatureEscape,null);
+						}
+						else {
+							creatureEscape.visible = false;
+							if(lastLevel=="Crossing") {
+								dude.setPosition(door);
+								dude1.setPosition(ground);
+							}
+							mouseAction(dude,dude1,null);
+							if(solvedLevel) {
+								leftped.supports++;
+								rightped.supports++;
+							}
 						}
 					},
 					hotspots: [
@@ -31,10 +42,21 @@
 						"rightped",
 						"door",
 						"entrance",
-						"ground"
+						"ground",
+						"exitToCrevasse"
 					],
 					action : function(object:HotObject,dude:Dude):void {
 						dude = setDude("dude1",dude.id);
+					}
+				},
+				"creatureEscape": {
+					action : function(object:HotObject,dude:Dude):void {
+						dude.visible = false;
+						Wearable.fullUpdate(dude,object);
+						object.setLabel("ESCAPE");
+					},
+					end: function(object:HotObject,dude:Dude):void {
+						gotoScene("Crevasse",dude,false,false);
 					}
 				},
 				cheat: {
@@ -131,11 +153,14 @@
 					},
 					"end": function(object:HotObject,dude:Dude):void {
 						entrance.setLabel("STILL",false);
-						if(dude==mainCharacter) {
-							solveLevel();
-							gotoScene("Crossing");
-						}
+						gotoScene("Crossing",dude,true,true);
 					}
+				},
+				"exitToCrevasse": {
+					action: function(object:HotObject,dude:Dude):void {
+						gotoScene("Crevasse",dude,false,false);
+					}
+					
 				},
 				"door": {
 					action: function(object:HotObject,dude:Dude):void {

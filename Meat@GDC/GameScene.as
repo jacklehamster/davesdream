@@ -46,10 +46,7 @@
 					},
 					end : function(object:HotObject,dude:Dude):void {
 						object.setLabel("STILL",false);
-						if(dude==mainCharacter) {
-							solveLevel();
-							gotoScene("ThePyramid");
-						}
+						gotoScene("ThePyramid",dude,true,true);
 					}
 				},
 				"switch1" : {

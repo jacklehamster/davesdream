@@ -48,14 +48,14 @@
 				},
 				"cheat": {
 					action: function(object:HotObject,dude:Dude):void {
-						dude.hero.pickupItem("spear");
+//						dude.hero.pickupItem("spear");
+						dude.hero.state.ridingCreature = true;
 					}
 				},
 				"exitToCrossing": {
 					action: function(object:HotObject,dude:Dude):void {
 						dude.visible = false;
-						if(dude==mainCharacter)
-							gotoScene("Crossing",false);
+						gotoScene("Crossing",dude,false,false);
 					}
 				},
 				"gianthand": {
@@ -150,9 +150,27 @@
 				},
 				"caged": {
 					action : function(object:HotObject,dude:Dude):void {
-						
+						if(object.currentLabel=="STILL") {
+							dude.visible = false;
+							object.setLabel("RELEASE");
+							dude.hero.state.ridingCreature = true;
+						}
+					},
+					refresh : function(caged:CagedAnimal,dude:Dude):void {
+						if(spear.visible) {
+							if(caged.dudehand) {
+								var point:Point = globalToLocal(caged.dudehand.localToGlobal(new Point()));
+								if(point.x > spear.x) {
+									spear.visible = false;
+									caged.dudehand.spear.visible = true;
+									dude.hero.pickupItem("spear");
+								}
+							}
+						}						
 					},
 					end: function(object:HotObject,dude:Dude):void {
+						object.setLabel("EMPTY",false);
+						gotoScene("ThePyramid",dude,true,false);
 					}
 				}
 			};

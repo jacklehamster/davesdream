@@ -32,7 +32,7 @@
 				},
 				"balancecheat": {
 					action: function(object:HotObject,dude:Dude):void {
-						gotoScene("Giant",false);
+						gotoScene("Precipice",dude,false,false);
 					}
 				},
 				"switch1" : {
@@ -60,7 +60,7 @@
 				},
 				"dude3": {
 					action: function(object:HotObject,dude:Dude):void {
-						gotoScene("Daves",false);
+						gotoScene("Daves",dude,false,false);
 					}
 				}
 			}

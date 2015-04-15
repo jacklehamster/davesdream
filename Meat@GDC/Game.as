@@ -276,7 +276,7 @@
 		
 		public function failaction(hotObject:HotObject,dude:Dude,item:String):void {
 			var script:Object = scripts[hotObject.model.name];
-			if(script || item && script.combo && script.combo[item]) {
+			if(script && (script.failaction || item && script.combo && script.combo[item] && script.combo[item].failaction)) {
 				if(hotObject.scriptRunning) {
 					if(hotObject.activator==dude) {
 						return;
@@ -356,8 +356,14 @@
 			return array;
 		}
 		
-		public function gotoScene(scene:String,fade:Boolean=true):void {
+		public function gotoScene(scene:String,dude:Dude,solve:Boolean,fade:Boolean):void {
+			if(dude!=mainCharacter) {
+				return;
+			}
 			lastLevel = currentLevel;
+			if(solve) {
+				solveLevel();
+			}
 
 			var func:Function = function():void {
 				persisted_id = mainCharacter.id;
@@ -391,6 +397,13 @@
 		
 		public function get mainHero():Hero {
 			return mainCharacter ? mainCharacter.hero : null;
+		}
+		
+		public function refresh(hotObject:HotObject,dude:Dude):void {
+			var script:Object = hotObject.scriptRunning;
+			if(script && script.refresh) {
+				script.refresh.call(this,hotObject,dude);
+			}			
 		}
 	}
 	
