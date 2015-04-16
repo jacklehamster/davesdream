@@ -14,15 +14,16 @@
 						mouseAction(dude,dude1,null);
 					},
 					hotspots: [
-						"cheat",
-						"balancecheat"
+						"cheat"
 					]
 				},
 				"dude1" : {
 					hotspots: [
 						"switch1",
 						"hand1",
-						"exit"
+						"exit",
+						"leftPlatform1",
+						"rightPlatform1"
 					],
 					action : function(object:HotObject,dude:Dude):void {
 						dude = setDude("dude1",dude.id);
@@ -100,9 +101,11 @@
 				},
 				"leftPlatform1": {
 					action: function(object:HotObject,dude:Dude):void {
-						dude.setMover(null);
-						dude.visible = false;
-						object.setLabel("STEPON");
+						if(dude.model==dude2) {
+							dude.setMover(null);
+							dude.visible = false;
+							object.setLabel("STEPON");
+						}
 					},
 					failaction: function(object:HotObject,dude:Dude):void {
 						if(dude.mover==hand1) {
@@ -125,9 +128,11 @@
 				},
 				"rightPlatform1": {
 					action: function(object:HotObject,dude:Dude):void {
-						dude.setMover(null);
-						dude.visible = false;
-						object.setLabel("STEPON");
+						if(dude.model==dude2) {
+							dude.setMover(null);
+							dude.visible = false;
+							object.setLabel("STEPON");
+						}
 					},
 					failaction: function(object:HotObject,dude:Dude):void {
 						if(dude.mover==hand1) {

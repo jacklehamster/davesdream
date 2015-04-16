@@ -38,8 +38,8 @@
 				"dude2" : {
 					action : function(object:HotObject,dude:Dude):void {
 						dude = setDude("dude1",dude.id);
-						dude.setPosition(object,-1);
 						dude.setLabel("CRAWL",false);
+						dude.setPosition(object,1);
 					}
 				},
 				"dude1" : {

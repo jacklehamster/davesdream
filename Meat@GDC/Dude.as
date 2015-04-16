@@ -9,6 +9,7 @@
 		public var speed:Number = 3;
 		public var usingItem:String;
 		public var doomed:Boolean;
+		public var percentInTheAir:Number = 0;
 		
 		public function Dude() {
 			visible = false;
@@ -136,6 +137,23 @@
 		
 		public function get hero():Hero {
 			return ActionSpace.heroes[id];
+		}
+		
+		public function inTheAir(frames:int):void {
+			var f:int = 1;
+			percentInTheAir = f/frames;
+			addEventListener(Event.ENTER_FRAME,
+				function(e:Event):void {
+					if(f<frames) {
+						f++;
+						percentInTheAir = f/frames;
+					}
+					else {
+						dispatchEvent(new Event("landed"));
+						percentInTheAir = 0;
+						e.currentTarget.removeEventListener(e.type,arguments.callee);
+					}
+				});
 		}
 	}
 	

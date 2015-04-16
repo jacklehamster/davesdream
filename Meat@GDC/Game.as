@@ -12,7 +12,7 @@
 	
 	public class Game extends ActionSpace {
 		
-		static public const DEBUG:Boolean = true;
+		static public const DEBUG:Boolean = false;
 		
 		static public var persisted_id:int = 0;
 		public var mainCharacter:Dude;
@@ -79,7 +79,7 @@
 			if(!scripts.scene.noNeedRemote) {
 				mainHero.pickupItem("timeRemote");
 			}
-			
+			inventory.updateInventory(mainHero.items);
 			
 			persisted_id = 0;
 		}
@@ -126,15 +126,14 @@
 		
 		private function onMouse(e:MouseEvent):void {
 			if(e.buttonDown) {
-				if(mainCharacter && mainCharacter.visible) {
-					var hotObject:HotObject = e.target as HotObject;
+				var hotObject:HotObject = e.target as HotObject;
+				if(mainCharacter && mainCharacter.visible 
+					|| hotObject && hotObject.activator==mainCharacter
+					|| hotObject && hotObject.caughtDude()) {
 					if(hotObject) {
 						var item:String = inventory.activeItem;
 						inventory.setCursor(null);
 						mouseAction(mainCharacter,hotObject,item);
-					}
-					else {
-						//mainCharacter.walkTo(mouseX,mouseY);
 					}
 				}
 			}
@@ -258,6 +257,10 @@
 							subscript.action.call(this,hotObject,dude);
 						}
 					}
+					if(!hotObject.labelPlaying) {
+						hotObject.scriptRunning = null;
+						hotObject.activator = null;
+					}
 				}
 				else {
 					trace("NO ACTION FOR",hotObject.model.name);
@@ -302,6 +305,10 @@
 						hotObject.scriptRunning = subscript;
 						subscript.failaction.call(this,hotObject,dude);
 					}
+				}
+				if(!hotObject.labelPlaying) {
+					hotObject.scriptRunning = null;
+					hotObject.activator = null;
 				}
 			}
 			else {
@@ -365,6 +372,9 @@
 				solveLevel();
 			}
 
+			Hero.persistentItems = dude.hero.items;
+			
+
 			var func:Function = function():void {
 				persisted_id = mainCharacter.id;
 				clearHistory();
@@ -404,6 +414,20 @@
 			if(script && script.refresh) {
 				script.refresh.call(this,hotObject,dude);
 			}			
+		}
+		
+		protected function freeFall(dude:Dude):void {
+			var mov:Number = 0;
+			dude.doomed = true;
+			dude.addEventListener(Event.ENTER_FRAME,
+				function(e:Event):void {
+					dude.y += mov;
+					mov++;
+					if(dude.y>stage.stageHeight+dude.height+50) {
+						e.currentTarget.removeEventListener(e.type,arguments.callee);
+						gameOver(dude);
+					}
+				});
 		}
 	}
 	

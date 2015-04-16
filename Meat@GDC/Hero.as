@@ -4,6 +4,7 @@
 	
 	public class Hero extends EventDispatcher{
 
+		static public var persistentItems:Array = null;
 		
 		public var items:Array = [];
 		public var state:Object = {};
@@ -13,7 +14,8 @@
 		}
 		
 		public function resetInventory():void {
-			items = [];
+			items = persistentItems?persistentItems:[];
+			dispatchEvent(new Event(Event.CHANGE));
 		}
 		
 		public function pickupItem(item:String):void {

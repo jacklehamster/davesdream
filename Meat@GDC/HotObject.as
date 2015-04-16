@@ -10,6 +10,7 @@
 		private var _model:HotObject;
 		public var scriptRunning:Object;
 		public var activator:Dude;
+		public var labelPlaying:String;
 		
 		private var _hotPos:HotPos;
 		public var _id:int = id_counter++;;
@@ -57,14 +58,17 @@
 		public function setLabel(label:String,doplay:Boolean=true,callback:Function=null):void {
 //			Debug.getStackTrace();
 			if(doplay) {
+				labelPlaying = label;
 				if(currentLabel==label)
 					play();
 				else
 					gotoAndPlay(label);
 				this.callback = callback;
 			}
-			else
+			else {
+				labelPlaying = null;
 				gotoAndStop(label);
+			}
 		}
 		
 		public function set active(value:Boolean):void {
@@ -112,6 +116,7 @@
 				scriptRunning = null;
 				var dude:Dude = activator;
 				activator = null;
+				labelPlaying = null;
 				master.finishScript(script,this,dude);
 			}
 		}
@@ -154,6 +159,10 @@
 			x = point.x;
 			y = point.y;
 			setDirection(direction);
+		}
+		
+		public function caughtDude():Boolean {
+			return false;
 		}
 
 		override protected function refresh():void {

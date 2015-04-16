@@ -11,11 +11,14 @@
 					initialize : function():void {
 						var dude:Dude = setDude("dude0",persisted_id);
 						born(dude);
-						if(lastLevel=="Giant") {
+						if(lastLevel=="Giant" || lastLevel=="Precipice") {
 							dude.setPosition(north);
 						}
 						else if(lastLevel=="Balance") {
 							dude.setPosition(west);
+						}
+						else if(lastLevel=="Hex") {
+							dude.setPosition(east);
 						}
 						
 						mouseAction(dude,dude1,null);
@@ -45,7 +48,7 @@
 					},
 					end : function(object:HotObject,dude:Dude):void {
 						object.setLabel("STILL",false);
-						gotoScene("Giant",dude,false,false);
+						gotoScene("Precipice",dude,false,false);
 					}
 				},
 				"west" : {
@@ -65,7 +68,7 @@
 					},
 					end : function(object:HotObject,dude:Dude):void {
 						object.setLabel("STILL",false);
-						gotoScene("Precipice",dude,false,false);
+						gotoScene("Hex",dude,false,false);
 					}
 				}
 			};

@@ -33,6 +33,10 @@
 			addEventListener(Event.REMOVED_FROM_STAGE,offStage);
 		}
 		
+		public function get animationProgress():Number {
+			return (currentFrame - frameInfos[currentLabel].start) / (frameInfos[currentLabel].end - frameInfos[currentLabel].start + 1);
+		}
+		
 		private function onStage(e:Event):void {
 			addEventListener(Event.ENTER_FRAME,onFrame);			
 		}
@@ -58,6 +62,10 @@
 		}
 		
 		protected function onEndAnimation():void {
+		}
+		
+		public function hasLabel(label:String):Boolean {
+			return frameInfos[label];
 		}
 
 	}

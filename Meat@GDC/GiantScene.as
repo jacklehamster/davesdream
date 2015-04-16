@@ -25,7 +25,7 @@
 				},
 				"dude1" : {
 					hotspots: [
-						"exitToCrossing",
+						"exitToPrecipice",
 						"gianthand",
 						"spear",
 						"caged"
@@ -48,14 +48,14 @@
 				},
 				"cheat": {
 					action: function(object:HotObject,dude:Dude):void {
-//						dude.hero.pickupItem("spear");
-						dude.hero.state.ridingCreature = true;
+						dude.hero.pickupItem("spear");
+//						dude.hero.state.ridingCreature = true;
 					}
 				},
-				"exitToCrossing": {
+				"exitToPrecipice": {
 					action: function(object:HotObject,dude:Dude):void {
 						dude.visible = false;
-						gotoScene("Crossing",dude,false,false);
+						gotoScene("Precipice",dude,false,false);
 					}
 				},
 				"gianthand": {
