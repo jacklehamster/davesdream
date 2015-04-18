@@ -8,16 +8,33 @@
 	import flash.utils.setTimeout;
 	import flash.display.DisplayObject;
 	import com.newgrounds.encoders.json.encodeJson;
+	import com.newgrounds.API;
+	import flash.net.URLRequest;
+	import flash.net.URLLoader;
+	import com.newgrounds.crypto.MD5;
 	
 	
-	public class Game extends ActionSpace {
+	public class Game extends GameBase {
+		
+
+		static public function hardReset(root:MovieClip):void {
+			currentLevel = null;
+			lastLevel = null;
+			levelsToSolve = [];
+			Hero.persistentItems = [];
+			ActionSpace.heroes = {};
+			global_history = [];
+			GameBase.dialogHistory = [];
+			root.gotoAndPlay(1,"Logo");
+		}
+		
+		
 		
 		static public const DEBUG:Boolean = false;
 		
 		static public var persisted_id:int = 0;
 		public var mainCharacter:Dude;
 		
-		protected var scripts:Object = {};
 		private var blockedAreas:Object = {};
 		private var detectAreas:Object = {};
 		
@@ -69,19 +86,30 @@
 			if(solvedLevel) {
 				clearHistory();
 			}
+
+			if(!scripts) {
+				scripts = {};
+			}
+			if(!scripts.scene) {
+				scripts.scene = {};
+			}
 			
 			if(!scripts.scene.noFadein)
 				MovieClip(root).addChild(new FadeIn());
 			if(scripts.scene && scripts.scene.initialize) {
-				scripts.scene.initialize();
+				scripts.scene.initialize.call(this);
 			}
-			mainHero.addEventListener(Event.CHANGE,onInventoryChange);
-			if(!scripts.scene.noNeedRemote) {
-				mainHero.pickupItem("timeRemote");
+			if(inventory && mainHero) {
+				mainHero.addEventListener(Event.CHANGE,onInventoryChange);
+				if(!scripts.scene.noNeedRemote) {
+					mainHero.pickupItem("timeRemote");
+				}
+				inventory.updateInventory(mainHero.items);
 			}
-			inventory.updateInventory(mainHero.items);
+			resetHotspots();
 			
 			persisted_id = 0;
+			resetMusic();
 		}
 		
 		public function gameOver(dude:Dude):void {
@@ -131,9 +159,11 @@
 					|| hotObject && hotObject.activator==mainCharacter
 					|| hotObject && hotObject.caughtDude()) {
 					if(hotObject) {
-						var item:String = inventory.activeItem;
-						inventory.setCursor(null);
+						var item:String = inventory?inventory.activeItem:null;
+						if(inventory)
+							inventory.setCursor(null);
 						mouseAction(mainCharacter,hotObject,item);
+						e.stopImmediatePropagation();
 					}
 				}
 			}
@@ -177,28 +207,27 @@
 				
 		public function resetHotspots():void {
 			var dude:Dude = mainCharacter;
-			if(dude) {
-				var script:Object = scripts[dude.model.name];
-				var hotspots:Array = script?script.hotspots:null;
-				if(!hotspots) {
-					hotspots = [];
-					trace("NO SCRIPT OR NO HOTSPOTS FOR",dude.model.name);
-				}
-				var sceneHotSpots = scripts.scene.hotspots;
-				if(sceneHotSpots) {
-					hotspots = hotspots.concat(sceneHotSpots);
-				}
-				
-				var hash:Object = {};
-				for each(var spot:String in hotspots) {
-					hash[spot] = true;
-				}
-				for(var i:int=0;i<numChildren;i++) {
-					var hotSpot:HotObject = getChildAt(i) as HotObject;
-					if(hotSpot) {
-						hotSpot.active = hash[hotSpot.model.name] ||
-							hotSpot==mainCharacter && inventory && inventory.activeItem;
-					}
+			var script:Object = dude ? scripts[dude.model.name] : null;
+			var hotspots:Array = script?script.hotspots:null;
+			if(!hotspots) {
+				hotspots = [];
+				trace("NO SCRIPT OR NO HOTSPOTS FOR",dude?dude.model.name:null);
+			}
+			var sceneHotSpots = scripts.scene.hotspots;
+			if(sceneHotSpots) {
+				hotspots = hotspots.concat(sceneHotSpots);
+			}
+			
+			var hash:Object = {};
+			for each(var spot:String in hotspots) {
+				hash[spot] = true;
+			}
+			trace(hotspots);
+			for(var i:int=0;i<numChildren;i++) {
+				var hotSpot:HotObject = getChildAt(i) as HotObject;
+				if(hotSpot) {
+					hotSpot.active = hash[hotSpot.model.name] ||
+						hotSpot==mainCharacter && inventory && inventory.activeItem;
 				}
 			}
 		}
@@ -242,7 +271,8 @@
 							rescue();
 						}
 						else if(dude==mainCharacter) {
-							return;
+							if(hotObject.activator.root)
+								return;
 						}
 					}
 					hotObject.scriptRunning = script;
@@ -258,6 +288,7 @@
 						}
 					}
 					if(!hotObject.labelPlaying) {
+						dude.usingItem = null;
 						hotObject.scriptRunning = null;
 						hotObject.activator = null;
 					}
@@ -275,6 +306,9 @@
 			mainCharacter.doomed = false;
 			mainCharacter.visible = true;
 			undo();
+			var ghost:Dude = mainCharacter;
+			var dude:Dude = setDude(mainCharacter.model.name,mainCharacter.id);
+			dude.setPosition(ghost);
 		}
 		
 		public function failaction(hotObject:HotObject,dude:Dude,item:String):void {
@@ -289,7 +323,8 @@
 						rescue();
 					}
 					else if(dude==mainCharacter) {
-						return;
+						if(hotObject.activator.root)
+							return;
 					}
 				}
 				hotObject.scriptRunning = script;
@@ -307,6 +342,7 @@
 					}
 				}
 				if(!hotObject.labelPlaying) {
+					dude.usingItem = null;
 					hotObject.scriptRunning = null;
 					hotObject.activator = null;
 				}
@@ -372,17 +408,20 @@
 				solveLevel();
 			}
 
-			Hero.persistentItems = dude.hero.items;
-			
+			if(dude) {
+				Hero.persistentItems = dude.hero.items;
+			}
 
 			var func:Function = function():void {
-				persisted_id = mainCharacter.id;
+				persisted_id = mainCharacter?mainCharacter.id:1;
 				clearHistory();
-				MovieClip(root).gotoAndStop(1,scene);
+				if(root)
+					MovieClip(root).gotoAndStop(1,scene);
 			}
 			
 			if(fade) {
-				MovieClip(root).addChild(new FadeOut(func));
+				if(root)
+					MovieClip(root).addChild(new FadeOut(func));
 			}
 			else {
 				func();
@@ -428,6 +467,38 @@
 						gameOver(dude);
 					}
 				});
+		}
+		
+		
+		static public function finish(root:MovieClip):void {
+			API.unlockMedal("ACT 1");
+			gamejoltAchieve(root);
+		}
+		
+		static private function gamejoltAchieve(root:MovieClip):void {
+			var username:String = root.loaderInfo.parameters.gjapi_username;
+			var token:String = root.loaderInfo.parameters.gjapi_token;
+			if(username && token) {
+				var url:String = "http://gamejolt.com/api/game/v1/trophies/add-achieved/";
+				var trophyID:String = "22891";
+				var gameID:String = "59918";
+				var key:String = "2763769fe33664f2d1d964d49f2df721";
+				url += "?game_id="+gameID;
+				url += "&username="+username;
+				url += "&user_token="+token;
+				url += "&trophy_id="+trophyID;
+				url += "&format=json";
+				url += "&signature="+MD5.hash(url + key);
+				var request:URLRequest = new URLRequest(url);
+				var urlloader:URLLoader = new URLLoader();
+				urlloader.load(request);
+				
+			}
+		}
+		
+		static public function restartLevel():void {
+			global_history.pop();
+			instance.gameOver(instance.mainCharacter);
 		}
 	}
 	

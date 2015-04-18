@@ -5,7 +5,6 @@
 	
 	public class ThePyramid extends Game {
 		
-		
 		public function ThePyramid() {
 			scripts = {
 				scene: {
@@ -23,6 +22,10 @@
 							creatureEscape.visible = false;
 							if(lastLevel=="Crossing") {
 								dude.setPosition(door);
+								dude1.setPosition(ground);
+							}
+							else if(lastLevel=="Crevasse") {
+								dude.setPosition(exitToCrevasse);
 								dude1.setPosition(ground);
 							}
 							mouseAction(dude,dude1,null);
@@ -43,7 +46,8 @@
 						"door",
 						"entrance",
 						"ground",
-						"exitToCrevasse"
+						"exitToCrevasse",
+						"exitToLevel1"
 					],
 					action : function(object:HotObject,dude:Dude):void {
 						dude = setDude("dude1",dude.id);
@@ -159,8 +163,12 @@
 				"exitToCrevasse": {
 					action: function(object:HotObject,dude:Dude):void {
 						gotoScene("Crevasse",dude,false,false);
-					}
-					
+					}					
+				},
+				"exitToLevel1": {
+					action: function(object:HotObject,dude:Dude):void {
+						gotoScene("Level1",dude,false,false);
+					}					
 				},
 				"door": {
 					action: function(object:HotObject,dude:Dude):void {

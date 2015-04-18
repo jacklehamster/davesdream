@@ -5,6 +5,9 @@
 	
 	public class CrevasseScene extends Game {
 		
+		override protected function get music():Class {
+			return CareFreeSong;
+		}
 		
 		public function CrevasseScene() {
 			scripts = {

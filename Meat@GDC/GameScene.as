@@ -5,12 +5,22 @@
 	
 	public class GameScene extends Game {
 		
+		
+		override protected function get music():Class {
+			return PuzzleSong;
+		}
+		
+		
 		function GameScene():void {
 			scripts = {
 				scene: {
 					initialize : function():void {
 						var dude:Dude = setDude("dude0",persisted_id);
 						born(dude,{speed:2});
+						if(lastLevel=="ThePyramid") {
+							dude.setPosition(exit);
+							dude1.setPosition(rightPlatform1);
+						}
 						mouseAction(dude,dude1,null);
 					},
 					hotspots: [
@@ -23,7 +33,8 @@
 						"hand1",
 						"exit",
 						"leftPlatform1",
-						"rightPlatform1"
+						"rightPlatform1",
+						"goBack"
 					],
 					action : function(object:HotObject,dude:Dude):void {
 						dude = setDude("dude1",dude.id);
@@ -151,6 +162,12 @@
 						dude = setDude("dude1",dude.id);
 						dude.setPosition(object,1);
 						object.setLabel("STILL",false);
+					}
+				},
+				"goBack": {
+					action: function(object:HotObject,dude:Dude):void {
+						gotoScene("ResetLevel",dude,false,false);
+
 					}
 				}
 			}

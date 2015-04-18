@@ -9,6 +9,7 @@
 		public var items:Array = [];
 		public var state:Object = {};
 		
+
 		public function Hero():void {
 			resetInventory();
 		}

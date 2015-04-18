@@ -8,7 +8,7 @@
 		
 		
 		override protected function processWithDude(dude:Dude):void {
-			gotoAndStop(1+((dude.id-7+totalFrames)%totalFrames));
+			gotoAndStop(1+((dude.id-1+totalFrames)%totalFrames));
 		}
 	}
 	

@@ -160,7 +160,7 @@
 		public function mouseAction(dude:Dude,hotObject:HotObject,item:String):void {
 			addHistory(frame,
 				{
-					id:dude.id,
+					id:dude?dude.id:null,
 					action:"action",
 					model:hotObject==dude?null:hotObject.model.name,
 					item:item
@@ -186,7 +186,14 @@
 		}
 		
 		private function _mouseAction(dude:Dude,hotObject:HotObject,item:String):void {
-			if(dude.doomed) {
+			if(!dude) {
+				if(hotObject && hotObject.direct) {
+					var dude:Dude = new Dude();
+					addChild(dude);
+					dude.interact(hotObject);
+				}
+			}
+			else if(dude.doomed) {
 			}
 			else if(dude && hotObject) {
 				dude.usingItem = item;

@@ -14,7 +14,7 @@
 		
 		private var _hotPos:HotPos;
 		public var _id:int = id_counter++;;
-		static public var id_counter:int = 1;
+		static public var id_counter:int = 100;
 		
 		protected var callback:Function = null;
 

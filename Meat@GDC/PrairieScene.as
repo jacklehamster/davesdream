@@ -5,6 +5,10 @@
 	
 	public class PrairieScene extends Game {
 		
+		override protected function get music():Class {
+			return CareFreeSong;
+		}
+		
 		
 		public function PrairieScene() {
 			scripts = {

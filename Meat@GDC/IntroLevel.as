@@ -12,27 +12,68 @@
 					nonStop:true,
 					noNeedRemote:true,
 					initialize : function():void {
+						persisted_id = 1;
 						var dude:Dude = setDude("dude0",persisted_id);
-						born(dude,{speed:2});
+						born(dude);
+						if(lastLevel=="Daves") {
+							dude.setPosition(door1);
+							dude1.setPosition(switch1);
+							door1.setLabel("OPEN");
+							switch1.setLabel("DOWN",false);
+						}
+						programmingBy.visible = dude.hero.hasItem("daveRequest") && !dude.hero.hasItem("seenTitle");
 						mouseAction(dude,dude1,null);
 					},
 					hotspots: [
 						"cheat",
-						"balancecheat"
+						"balancecheat",
+						"programmingBy"
 					]
 				},
 				"dude1" : {
 					hotspots: [
 						"switch1",
-						"door1"
+						"door1",
+						"drawer",
+						"toHallway"
 					],
 					action : function(object:HotObject,dude:Dude):void {
 						dude = setDude("dude1",dude.id);
 					}
 				},
+				"toHallway": {
+					action: function(object:HotObject,dude:Dude):void {
+						if(dude.hero.hasItem("daveRequest")) {
+							gotoScene("Hallway",dude,false,false);
+						}
+						else {
+							mouseAction(dude,dude1,null);
+						}
+					}
+				},
 				"balancecheat": {
 					action: function(object:HotObject,dude:Dude):void {
-						gotoScene("Hex",dude,false,false);
+//						dude.hero.pickupItem("daveRequest");
+//						dude.hero.pickupItem("wallet");
+						gotoScene("Outside",dude,false,false);
+					}
+				},
+				"drawer": {
+					action: function(object:HotObject,dude:Dude):void {
+						dude.visible = false;
+						if(dude.hero.hasItem("daveRequest") && !dude.hero.hasItem("wallet")) {
+							object.setLabel("GETWALLET");
+						}
+						else {
+							object.setLabel("OPENDRAWER");
+						}
+					},
+					end : function(object:HotObject,dude:Dude):void {
+						if(object.currentLabel=="GETWALLET") {
+							dude.hero.pickupItem("wallet");
+						}
+						dude.visible = true;
+						object.setLabel("STILL",false);
 					}
 				},
 				"switch1" : {
@@ -64,6 +105,10 @@
 					}
 				}
 			}
+		}	
+		
+		override protected function get music():Class {
+			return IntroMusic;
 		}
 	}
 	
