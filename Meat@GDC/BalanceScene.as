@@ -15,11 +15,16 @@
 						topplate.attach(balance.topplate);
 						bottomplate.attach(balance.bottomplate);
 						balance.setBalancePlate(topplate,bottomplate);
+						rock.visible = true;
 						
 						var dude:Dude = setDude("dude0",persisted_id);
-						born(dude);
-						rock.visible = !dude.hero.hasItem("rock");
-						if(Game.lastLevel=="Alley") {
+						born(dude,{lastLevel:previousLevel});
+					},
+					born: function(dude:Dude):void {
+						if(dude.hero.hasItem("rock")) {
+							rock.visible = false;
+						}
+						if(dude.lastLevel=="Alley") {
 							dude = setDude("dudeleft",dude.id);
 							dude.setMover(topplate as IMover);
 							dude.visible = false;

@@ -10,14 +10,16 @@
 				scene: {
 					initialize : function():void {
 						var dude:Dude = setDude("dude0",persisted_id);
-						born(dude);
-						if(lastLevel=="Giant" || lastLevel=="Precipice") {
+						born(dude,{lastLevel:previousLevel});
+					},
+					born: function(dude:Dude):void {
+						if(dude.lastLevel=="Giant" || dude.lastLevel=="Precipice") {
 							dude.setPosition(north);
 						}
-						else if(lastLevel=="Balance") {
+						else if(dude.lastLevel=="Balance") {
 							dude.setPosition(west);
 						}
-						else if(lastLevel=="Hex") {
+						else if(dude.lastLevel=="Hex") {
 							dude.setPosition(east);
 						}
 						

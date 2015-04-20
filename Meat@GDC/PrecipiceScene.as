@@ -11,14 +11,16 @@
 				scene: {
 					initialize : function():void {
 						var dude:Dude = setDude("dude0",persisted_id);
-						born(dude);
+						born(dude,{lastLevel:previousLevel});
 						
 						if(solvedLevel) {
 							skully.setLabel("GOTIDOL");
 							platformToGiant.setLabel("DOOR");
-							if(lastLevel=="Giant") {
-								dude.setPosition(platformToGiant);
-							}
+						}
+					},
+					born: function(dude:Dude):void {
+						if(dude.lastLevel=="Giant") {
+							dude.setPosition(platformToGiant);
 						}
 						mouseAction(dude,dude1,null);
 					},

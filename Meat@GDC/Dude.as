@@ -10,6 +10,8 @@
 		public var usingItem:String;
 		public var doomed:Boolean;
 		public var percentInTheAir:Number = 0;
+		public var lastLevel:String;
+		public var born:int;
 		
 		public function Dude() {
 			visible = false;
@@ -112,12 +114,7 @@
 			var item:String = usingItem;
 			usingItem = null;
 			Wearable.fullUpdate(this);
-			if(fail) {
-				master.failaction(hotObject,this,item);
-			}
-			else {
-				master.action(hotObject,this,item);
-			}
+			master.action(hotObject,this,item,fail);
 		}
 		
 		public function useItem(item:String):void {

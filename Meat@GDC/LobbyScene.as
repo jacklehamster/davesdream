@@ -13,15 +13,17 @@
 					noNeedRemote:true,
 					initialize : function():void {
 						var dude:Dude = setDude("dude0",persisted_id);
-						born(dude);
-						if(lastLevel=="Outside") {
+						born(dude,{lastLevel:previousLevel});
+						if(dude.hero.hasItem("seenTitle")) {
+							credits.visible = false;
+						}
+					},
+					born: function(dude:Dude):void {
+						if(dude.lastLevel=="Outside") {
 							dude.setPosition(dude0_2);
 							dude1.setPosition(dude1_2);
 						}
 						mouseAction(dude,dude1,null);
-						if(dude.hero.hasItem("seenTitle")) {
-							credits.visible = false;
-						}
 					}
 				},
 				"dude1" : {

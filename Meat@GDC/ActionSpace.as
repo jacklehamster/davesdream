@@ -11,6 +11,7 @@
 		protected var frame:int;
 		protected var registry:Object;
 		static public var heroes:Object = {};
+		static protected var rebirthCount:int = 0;
 		private var repeater:Object;
 		private var history:Array;
 		static protected var global_history:Array = [];
@@ -24,6 +25,7 @@
 			global_history = [];
 			repeater = {};
 			history = [];
+			rebirthCount = 0;
 		}
 		
 		protected function undo():void {
@@ -102,10 +104,10 @@
 			switch(event.action) {
 				case "born":
 					if(!registry[event.id]) {
-						_born(createDude(event.model,event.id));
+						_born(createDude(event.model,event.id),event.attribute);
 					}
-					for(var a:String in event.attribute) {
-						registry[event.id][a] = event.attribute[a];
+					else {
+						initializeDude(registry[event.id],event.attribute);
 					}
 					break;
 				case "action":
@@ -129,10 +131,11 @@
 		
 		
 		public function born(dude:Dude,attribute:Object = null):void {
+			var delay:int = rebirthCount*15;
 			registry[dude.id] = dude;
 			if(!heroes[dude.id])
 				heroes[dude.id] = new Hero();
-			addHistory(frame,
+			addHistory(frame+delay,
 				{
 					id:dude.id,
 					action:"born",
@@ -142,10 +145,23 @@
 			);
 		}
 		
-		private function _born(dude:Dude):void {
+		private function _born(dude:Dude,attribute:Object):void {
 			registry[dude.id] = dude;
+			initializeDude(dude,attribute);
+		}
+		
+		private function initializeDude(dude:Dude,attribute:Object):void {
 			if(!heroes[dude.id])
 				heroes[dude.id] = new Hero();
+			for(var a:String in attribute) {
+				dude[a] = attribute[a];
+			}
+			dude.born = frame;
+			onBorn(dude);
+		}
+		
+		protected function onBorn(dude:Dude):void {
+			
 		}
 		
 		public function disappear(dude:Dude):void {

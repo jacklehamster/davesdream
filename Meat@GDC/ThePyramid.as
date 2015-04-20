@@ -9,8 +9,16 @@
 			scripts = {
 				scene: {
 					initialize : function():void {
+						creatureEscape.visible = false;
+						if(solvedLevel) {
+							leftped.supports++;
+							rightped.supports++;
+						}
+						
 						var dude:Dude = setDude("dude0",persisted_id);
-						born(dude);
+						born(dude,{lastLevel:previousLevel});
+					},
+					born: function(dude:Dude):void {
 						if(dude.hero.state.ridingCreature) {
 							dude.visible = false;
 							leftped.supports++;
@@ -19,21 +27,16 @@
 							mouseAction(dude,creatureEscape,null);
 						}
 						else {
-							creatureEscape.visible = false;
-							if(lastLevel=="Crossing") {
+							if(dude.lastLevel=="Crossing") {
 								dude.setPosition(door);
 								dude1.setPosition(ground);
 							}
-							else if(lastLevel=="Crevasse") {
+							else if(dude.lastLevel=="Crevasse") {
 								dude.setPosition(exitToCrevasse);
 								dude1.setPosition(ground);
 							}
 							mouseAction(dude,dude1,null);
-							if(solvedLevel) {
-								leftped.supports++;
-								rightped.supports++;
-							}
-						}
+						}					
 					},
 					hotspots: [
 						"cheat"

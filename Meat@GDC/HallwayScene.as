@@ -13,15 +13,16 @@
 					noNeedRemote:true,
 					initialize : function():void {
 						var dude:Dude = setDude("dude0",persisted_id);
-						born(dude);
-						if(lastLevel=="Lobby") {
-							dude.setPosition(dude0_2);
-							dude1.setPosition(dude1_2);
-						}
+						born(dude,{lastLevel:previousLevel});
 						if(dude.hero.hasItem("seenTitle")) {
 							musicBy.visible = false;
 						}
-						
+					},
+					born: function(dude:Dude):void {
+						if(dude.lastLevel=="Lobby") {
+							dude.setPosition(dude0_2);
+							dude1.setPosition(dude1_2);
+						}						
 						mouseAction(dude,dude1,null);
 					},
 					hotspots: [

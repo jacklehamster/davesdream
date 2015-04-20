@@ -19,10 +19,11 @@
 
 		static public function hardReset(root:MovieClip):void {
 			currentLevel = null;
-			lastLevel = null;
+			previousLevel = null;
 			levelsToSolve = [];
 			Hero.persistentItems = [];
 			ActionSpace.heroes = {};
+			ActionSpace.rebirthCount = 0;
 			global_history = [];
 			GameBase.dialogHistory = [];
 			root.gotoAndPlay(1,"Logo");
@@ -39,7 +40,7 @@
 		private var detectAreas:Object = {};
 		
 		static public var currentLevel:String;
-		static protected var lastLevel:String;
+		static protected var previousLevel:String;
 		
 		static public var instance:Game;
 		
@@ -123,6 +124,7 @@
 				disappear(dude);
 				Inventory.instance.updateInventory([]);
 				ActionSpace.heroes = {};
+				rebirthCount++;
 				MovieClip(root).addChild(new FadeOut(
 					function():void {
 						MovieClip(root).gotoAndPlay(1,"ResetLevel");
@@ -257,34 +259,33 @@
 			}
 		}
 		
-		public function action(hotObject:HotObject,dude:Dude,item:String):void {
+		public function action(hotObject:HotObject,dude:Dude,item:String,fail:Boolean):void {
 			
 			var script:Object = scripts[hotObject.model.name];
+			var act:String = fail?"failaction":"action";
 			if(script) {
-				if(script.action || item && script.combo && script.combo[item]) {
+				if(script[act] || item && script.combo && script.combo[item]) {
 					if(hotObject.scriptRunning) {
-						if(hotObject.activator==dude) {
-							return;
-						}
-						else if(hotObject.activator==mainCharacter) {
+						if(hotObject.activator.born>dude.born) {
 							hotObject.cancel();
 							rescue();
 						}
-						else if(dude==mainCharacter) {
-							if(hotObject.activator.root)
+						else {
+							if(hotObject.activator.root) {
 								return;
+							}
 						}
 					}
 					hotObject.scriptRunning = script;
 					hotObject.activator = dude;
 					if(!item) {
-						script.action.call(this,hotObject,dude);
+						script[act].call(this,hotObject,dude);
 					}
 					else {
 						var subscript:Object = script.combo ? script.combo[item] : null;
-						if(subscript && subscript.action) {
+						if(subscript && subscript[act]) {
 							hotObject.scriptRunning = subscript;
-							subscript.action.call(this,hotObject,dude);
+							subscript[act].call(this,hotObject,dude);
 						}
 					}
 					if(!hotObject.labelPlaying) {
@@ -305,53 +306,18 @@
 		private function rescue():void {
 			mainCharacter.doomed = false;
 			mainCharacter.visible = true;
-			undo();
+			undoDude(mainCharacter);
 			var ghost:Dude = mainCharacter;
 			var dude:Dude = setDude(mainCharacter.model.name,mainCharacter.id);
 			dude.setPosition(ghost);
 		}
 		
-		public function failaction(hotObject:HotObject,dude:Dude,item:String):void {
-			var script:Object = scripts[hotObject.model.name];
-			if(script && (script.failaction || item && script.combo && script.combo[item] && script.combo[item].failaction)) {
-				if(hotObject.scriptRunning) {
-					if(hotObject.activator==dude) {
-						return;
-					}
-					else if(hotObject.activator==mainCharacter) {
-						hotObject.cancel();
-						rescue();
-					}
-					else if(dude==mainCharacter) {
-						if(hotObject.activator.root)
-							return;
-					}
-				}
-				hotObject.scriptRunning = script;
-				hotObject.activator = dude;
-				if(!item) {
-					if(script.failaction) {
-						script.failaction.call(this,hotObject,dude);
-					}
-				}
-				else {
-					var subscript:Object = script.combo[item];
-					if(subscript && subscript.failaction) {
-						hotObject.scriptRunning = subscript;
-						subscript.failaction.call(this,hotObject,dude);
-					}
-				}
-				if(!hotObject.labelPlaying) {
-					dude.usingItem = null;
-					hotObject.scriptRunning = null;
-					hotObject.activator = null;
-				}
-			}
-			else {
-				trace("NO SCRIPT FOR",hotObject.model.name);
+		private function undoDude(dude:Dude):void {
+			if(dude==mainCharacter) {
+				undo();
 			}
 		}
-		
+				
 		public function canGo(dude:Dude,x:Number,y:Number):Boolean {
 			for (var name:String in blockedAreas) {
 				var rect:Rectangle = blockedAreas[name];
@@ -399,11 +365,18 @@
 			return array;
 		}
 		
+		override protected function onBorn(dude:Dude):void {
+			if(scripts.scene && scripts.scene.born) {
+				scripts.scene.born.call(this,dude);
+			}
+		}
+		
+		
 		public function gotoScene(scene:String,dude:Dude,solve:Boolean,fade:Boolean):void {
 			if(dude!=mainCharacter) {
 				return;
 			}
-			lastLevel = currentLevel;
+			previousLevel = currentLevel;
 			if(solve) {
 				solveLevel();
 			}

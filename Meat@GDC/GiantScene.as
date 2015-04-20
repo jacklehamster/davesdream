@@ -83,7 +83,7 @@
 								object.visible = false;
 								dude.hero.dropItem("spear");
 								giant.usable = true;
-								action(giant,dude,null);
+								action(giant,dude,null,true);
 							}
 						}
 					}

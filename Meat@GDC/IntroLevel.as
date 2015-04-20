@@ -14,14 +14,16 @@
 					initialize : function():void {
 						persisted_id = 1;
 						var dude:Dude = setDude("dude0",persisted_id);
-						born(dude);
-						if(lastLevel=="Daves") {
+						born(dude,{lastLevel:previousLevel});
+						programmingBy.visible = dude.hero.hasItem("daveRequest") && !dude.hero.hasItem("seenTitle");
+					},
+					born: function(dude:Dude):void {
+						if(dude.lastLevel=="Daves") {
 							dude.setPosition(door1);
 							dude1.setPosition(switch1);
 							door1.setLabel("OPEN");
 							switch1.setLabel("DOWN",false);
 						}
-						programmingBy.visible = dude.hero.hasItem("daveRequest") && !dude.hero.hasItem("seenTitle");
 						mouseAction(dude,dude1,null);
 					},
 					hotspots: [
@@ -35,7 +37,8 @@
 						"switch1",
 						"door1",
 						"drawer",
-						"toHallway"
+						"toHallway",
+						"bed"
 					],
 					action : function(object:HotObject,dude:Dude):void {
 						dude = setDude("dude1",dude.id);
@@ -55,7 +58,7 @@
 					action: function(object:HotObject,dude:Dude):void {
 //						dude.hero.pickupItem("daveRequest");
 //						dude.hero.pickupItem("wallet");
-						gotoScene("Outside",dude,false,false);
+						gotoScene("ThePyramid",dude,false,false);
 					}
 				},
 				"drawer": {
@@ -74,6 +77,26 @@
 						}
 						dude.visible = true;
 						object.setLabel("STILL",false);
+					}
+				},
+				"bed": {
+					action: function(object:HotObject,dude:Dude):void {
+						dude.visible = false;
+						if(object.currentLabel=="STILL") {
+							object.setLabel("SLEEP");
+						}
+						else if(object.currentLabel=="SLEEP") {
+							object.setLabel("WAKE");
+						}
+					},
+					end : function(object:HotObject,dude:Dude):void {
+						if(object.currentLabel=="SLEEP") {
+							object.activator = dude;
+						}
+						else if(object.currentLabel=="WAKE") {
+							object.setLabel("STILL",false);
+							dude.visible = true;
+						}
 					}
 				},
 				"switch1" : {

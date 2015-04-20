@@ -15,10 +15,12 @@
 					noFadein:true,
 					initialize : function():void {
 						var dude:Dude = setDude("dude0",persisted_id);
-						born(dude);
+						born(dude,{lastLevel:previousLevel});
+					},
+					born: function(dude:Dude):void {
 						dude.setLabel("CRAWL",false);
 
-						if(lastLevel=="Cave") {
+						if(dude.lastLevel=="Cave") {
 							dude.setPosition(toCave,-1);
 							mouseAction(dude,dude2,null);
 						}

@@ -16,8 +16,10 @@
 				scene: {
 					initialize : function():void {
 						var dude:Dude = setDude("dude0",persisted_id);
-						born(dude,{speed:2});
-						if(lastLevel=="ThePyramid") {
+						born(dude,{speed:2,lastLevel:previousLevel});
+					},
+					born: function(dude:Dude):void {
+						if(dude.lastLevel=="ThePyramid") {
 							dude.setPosition(exit);
 							dude1.setPosition(rightPlatform1);
 						}

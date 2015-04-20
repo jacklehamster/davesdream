@@ -14,14 +14,17 @@
 				scene: {
 					noFadein:true,
 					initialize : function():void {
+						creatureEscape.visible = false;
 						var dude:Dude = setDude("dude0",persisted_id);
-						born(dude,{speed:2});
+						born(dude,{speed:2,lastLevel:previousLevel});
+					},
+					born: function(dude:Dude):void {
 						if(dude.hero.state.ridingCreature) {
 							dude.visible = false;
 							creatureEscape.visible = true;
 							mouseAction(dude,creatureEscape,null);
 						}
-						else if(lastLevel=="Prairie") {
+						else if(dude.lastLevel=="Prairie") {
 							dude.setPosition(dude0_2);
 							mouseAction(dude,dude1_2,null);
 						}
