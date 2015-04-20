@@ -29,6 +29,7 @@
 		private var currentPlan:String = null;
 		private var index:int = 0;
 		private var _stage:Stage;
+		private var lastSkip:Boolean = false;
 		
 		function GameBase():void {
 			addEventListener(Event.ADDED_TO_STAGE,
@@ -91,12 +92,13 @@
 		protected function wait(seconds:int,callback:Function,...params):void {
 			var startTime:int = getTimer();
 			var f:Function = function(e:MouseEvent=null):void {
-				if(e && getTimer()-startTime<Math.min(seconds,200)) {
+				if(e && getTimer()-startTime<Math.min(seconds,lastSkip?200:500)) {
 					return;
 				}
 				clearTimeout(timeout);
 				_stage.removeEventListener(MouseEvent.MOUSE_DOWN,f);
 				callback.apply(this,params);
+				lastSkip = e!=null;
 			};
 			var timeout:int = setTimeout(f,seconds);
 			_stage.addEventListener(MouseEvent.MOUSE_DOWN,f);

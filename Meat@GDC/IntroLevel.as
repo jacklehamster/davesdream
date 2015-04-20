@@ -58,7 +58,7 @@
 					action: function(object:HotObject,dude:Dude):void {
 //						dude.hero.pickupItem("daveRequest");
 //						dude.hero.pickupItem("wallet");
-						gotoScene("ThePyramid",dude,false,false);
+						gotoScene(Game.jumpScene,dude,false,false);
 					}
 				},
 				"drawer": {

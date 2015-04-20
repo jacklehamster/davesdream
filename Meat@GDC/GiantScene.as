@@ -15,13 +15,15 @@
 					initialize : function():void {
 						var dude:Dude = setDude("dude0",persisted_id);
 						born(dude);
-						mouseAction(dude,dude1,null);
 						spear.visible = false;
 						spearLanding = new Point(spear.x,spear.y);
 					},
 					hotspots: [
 						"cheat"
-					]
+					], 
+					born: function(dude:Dude):void {
+						mouseAction(dude,dude1,null);
+					}
 				},
 				"dude1" : {
 					hotspots: [
@@ -83,7 +85,7 @@
 								object.visible = false;
 								dude.hero.dropItem("spear");
 								giant.usable = true;
-								action(giant,dude,null,true);
+								action(giant,dude,null,false);
 							}
 						}
 					}

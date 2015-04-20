@@ -88,6 +88,9 @@
 						}
 					},
 					end : function(object:HotObject,dude:Dude):void {
+						if(dude.hero.hasItem("idol")) {
+							dude.hero.dropItem("idol");
+						}
 						object.setLabel("STILL",false);
 						gotoScene("Giant",dude,true,false);
 					}

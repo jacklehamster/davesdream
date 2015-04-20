@@ -15,7 +15,7 @@
 		}
 		
 		public function resetInventory():void {
-			items = persistentItems?persistentItems:[];
+			items = persistentItems?persistentItems.concat([]):[];
 			dispatchEvent(new Event(Event.CHANGE));
 		}
 		

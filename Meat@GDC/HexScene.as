@@ -1,13 +1,13 @@
-﻿package  {
-	
+﻿package {
+
 	import flash.display.MovieClip;
 	import flash.geom.Point;
 	import flash.display.DisplayObject;
 	import flash.events.Event;
-	
-	
+
+
 	public class HexScene extends Game {
-		
+
 		/*
 			   N(orth)
 			   L
@@ -19,8 +19,11 @@
 			   A
 			   S(outh)
 		*/
-		
-		static const Pylon2Pylon:Object = {
+
+		static const Pylon2Pylon: Object = {
+			"0": {
+				"A": "JUMPNORTH"
+			},
 			"S": {
 				"A": "JUMPNORTH"
 			},
@@ -99,39 +102,45 @@
 				"D": "JUMPNORTH",
 				"S": "JUMPSOUTH"
 			}
-		};		
-		
+		};
+
 		public function HexScene() {
-			
+
 			//	initial script
 			scripts = {
 				scene: {
-					initialize : function():void {
-						var dude:Dude = setDude("dude0",persisted_id);
+					initialize: function (): void {
+						var dude: Dude = setDude("dude0", persisted_id);
 						born(dude);
 
-						PylonC.setLabel("DOWN",false);
-						PylonH.setLabel("DOWN",false);
-						PylonG.setLabel("DOWN",false);
-						
-						mouseAction(dude,dudeS,null);
+						PylonC.setLabel("DOWN", false);
+						PylonH.setLabel("DOWN", false);
+						PylonG.setLabel("DOWN", false);
+						if (solvedLevel) {
+							autel.setLabel("EMPTY", false);
+							rightlion.setLabel("EMPTY", false);
+							leftlion.setLabel("EMPTY", false);
+						}
 					},
 					hotspots: [
 						"cheat"
-					]
-				},
-				"cheat": {
-					action : function(object:HotObject,dude:Dude):void {
-						autel.setLabel("RAISE");
-						
+					],
+					born: function (dude: Dude): void {
+						mouseAction(dude, dudeS, null);
 					}
 				},
-				"dudeS" : {
+				"cheat": {
+					action: function (object: HotObject, dude: Dude): void {
+						autel.setLabel("RAISE");
+
+					}
+				},
+				"dudeS": {
 					hotspots: [
 						"exitToCrossing"
 					],
-					action : function(object:HotObject,dude:Dude):void {
-						dude = setDude("dudeS",dude.id);
+					action: function (object: HotObject, dude: Dude): void {
+						dude = setDude("dudeS", dude.id);
 					}
 				},
 				"dudeN": {
@@ -142,204 +151,216 @@
 					]
 				},
 				"leftlion": {
-					action : function(object:HotObject,dude:Dude):void {
-						if(object.currentLabel=="STILL") {
+					action: function (object: HotObject, dude: Dude): void {
+						if (object.currentLabel == "STILL") {
 							dude.visible = false;
 							object.setLabel("PICKUP");
 						}
 					},
-					end : function(object:Lion,dude:Dude):void {
-						object.setLabel("STUCK",false);
+					end: function (object: Lion, dude: Dude): void {
+						object.setLabel("STUCK", false);
 						object.caught = dude;
-						if(autel.currentLabel=="STILL") {
+						if (autel.currentLabel == "STILL") {
 							autel.setLabel("OPEN");
-						}
-						else if(autel.currentLabel=="OPEN" || autel.currentLabel=="FALLDOWN") {
-							autel.setLabel("RAISE");							
+						} else if (autel.currentLabel == "OPEN" || autel.currentLabel == "FALLDOWN") {
+							autel.setLabel("RAISE");
 						}
 					},
 					combo: {
 						"timeRemote": {
-							action: function(object:Lion,dude:Dude):void {
-								if(object.currentLabel=="STUCK" && dude==object.caught) {
+							action: function (object: Lion, dude: Dude): void {
+								if (object.currentLabel == "STUCK" && dude == object.caught) {
 									dude.useItem("timeRemote");
 									object.setLabel("TIMEREMOTE");
 								}
+							},
+							end: function(object: Lion, dude: Dude):void {
+								object.setLabel("EMPTY",false);
 							}
-						}						
+						}
 					}
 				},
 				"rightlion": {
-					action : function(object:HotObject,dude:Dude):void {
-						if(object.currentLabel=="STILL") {
+					action: function (object: HotObject, dude: Dude): void {
+						if (object.currentLabel == "STILL") {
 							dude.visible = false;
 							object.setLabel("PICKUP");
 						}
 					},
-					end : function(object:Lion,dude:Dude):void {
-						object.setLabel("STUCK",false);
+					end: function (object: Lion, dude: Dude): void {
+						object.setLabel("STUCK", false);
 						object.caught = dude;
-						if(autel.currentLabel=="STILL") {
+						if (autel.currentLabel == "STILL") {
 							autel.setLabel("OPEN");
-						}
-						else if(autel.currentLabel=="OPEN" || autel.currentLabel=="FALLDOWN") {
-							autel.setLabel("RAISE");							
+						} else if (autel.currentLabel == "OPEN" || autel.currentLabel == "FALLDOWN") {
+							autel.setLabel("RAISE");
 						}
 					},
 					combo: {
 						"timeRemote": {
-							action: function(object:Lion,dude:Dude):void {
-								if(object.currentLabel=="STUCK" && dude==object.caught) {
+							action: function (object: Lion, dude: Dude): void {
+								if (object.currentLabel == "STUCK" && dude == object.caught) {
 									dude.useItem("timeRemote");
 									object.setLabel("TIMEREMOTE");
 								}
 							}
-						}						
+						}
 					}
 				},
 				"autel": {
-					action : function(object:HotObject,dude:Dude):void {
-						if(object.currentLabel=="RAISE") {
+					action: function (object: HotObject, dude: Dude): void {
+						if (object.currentLabel == "RAISE") {
 							dude.visible = false;
 							object.setLabel("PICKUP");
-						}
-						else if(object.currentLabel=="OPEN") {
+						} else if (object.currentLabel == "OPEN") {
 							dude.visible = false;
 							dude.doomed = true;
 							object.setLabel("FALLDOWN");
 						}
 					},
-					end : function(object:HotObject,dude:Dude):void {
-						if(object.currentLabel=="FALLDOWN") {
+					end: function (object: HotObject, dude: Dude): void {
+						if (object.currentLabel == "FALLDOWN") {
 							gameOver(dude);
-						}
-						else if(object.currentLabel=="PICKUP") {
-							object.setLabel("EMPTY",false);
+						} else if (object.currentLabel == "PICKUP") {
+							object.setLabel("EMPTY", false);
 							dude.visible = true;
 							dude.hero.pickupItem("idol");
 						}
 					}
 				},
 				"exitToCrossing": {
-					action: function(object:HotObject,dude:Dude):void {
+					action: function (object: HotObject, dude: Dude): void {
 						dude.visible = false;
-						gotoScene("Crossing",dude,dude.hero.hasItem("idol"),false);
+						gotoScene("Crossing", dude, dude.hero.hasItem("idol"), false);
 					}
 				}
 			};
-			
+
 			//	Main pylon script
-			var pylonScript:Object = {
+			var pylonScript: Object = {
 				action: pylonAction
 			};
-			
-			//	Manufacture scripts
-			for (var letter:String in Pylon2Pylon) {
 
-				var pylonDestinations:Object = Pylon2Pylon[letter];
-				
+			//	Manufacture scripts
+			for (var letter: String in Pylon2Pylon) {
+
+				var pylonDestinations: Object = Pylon2Pylon[letter];
+
 				//	setup dudes Script
-				var dudeScript:Object = scripts["dude"+letter];
-				if(!dudeScript) {
-					dudeScript = scripts["dude"+letter] = { 
-						hotspots:[] 
+				var dudeScript: Object = scripts["dude" + letter];
+				if (!dudeScript) {
+					dudeScript = scripts["dude" + letter] = {
+						hotspots: []
 					};
 				}
-				for(var d:String in pylonDestinations) {
-					if(d.length==1)
-						dudeScript.hotspots.push("Pylon"+d);
+				for (var d: String in pylonDestinations) {
+					if (d.length == 1)
+						dudeScript.hotspots.push("Pylon" + d);
 				}
 
-				if(!scripts["Pylon"+letter]) {
-					scripts["Pylon"+letter] = pylonScript;
+				if (!scripts["Pylon" + letter]) {
+					scripts["Pylon" + letter] = pylonScript;
 				}
-				
-			}			
-			
+
+			}
+
 		}
-		
-		private function pylonAction(object:HotObject,dude:Dude):void {
-			if(dude.currentLabel=="STAND" && object.currentLabel=="STILL") {
-				var fromLetter:String = dude.model.name.split("dude")[1];
-				var toLetter:String = object.model.name.split("Pylon")[1];
-				processMovement(dude,fromLetter,toLetter);
+
+		private function pylonAction(object: HotObject, dude: Dude): void {
+			if (dude.currentLabel == "STAND") {
+				var fromLetter: String = dude.model.name.split("dude")[1];
+				var toLetter: String = object.model.name.split("Pylon")[1];
+				processMovement(dude, fromLetter, toLetter);
 			}
 		}
-		
-		private function processMovement(dude:Dude,fromLetter:String,toLetter:String):void {
 
-			if(dude==mainCharacter) {
-				if(toLetter=="N" && MovieClip(root).currentLabel!="APPROACH") {
+		private function processMovement(dude: Dude, fromLetter: String, toLetter: String): void {
+
+			if (dude == mainCharacter) {
+				if (toLetter == "N" && MovieClip(root).currentLabel != "APPROACH") {
 					MovieClip(root).gotoAndPlay("APPROACH");
-				}
-				else if(toLetter=="L" && MovieClip(root).currentLabel=="APPROACH") {
+				} else if (toLetter == "L" && MovieClip(root).currentLabel == "APPROACH") {
 					MovieClip(root).gotoAndPlay("RECUL");
 				}
 			}
-			
-			
-			var animationLabel:String = Pylon2Pylon[fromLetter][toLetter];
-			if(!animationLabel) {
+
+
+			var animationLabel: String = Pylon2Pylon[fromLetter][toLetter];
+			if (!animationLabel) {
 				return;
 			}
-			var preDirection:Number = dude.scaleX;
+			var preDirection: Number = dude.scaleX;
 			dude.setDirection(-1);
-			
-			dude.setLabel(animationLabel,true,
-				function(dude:Dude):void {
-					dude = setDude("dude"+toLetter,dude.id);
-					if(animationLabel.indexOf("LEFT")>=0) {
+
+			dude.setLabel(animationLabel, true,
+				function (dude: Dude): void {
+//					trace(dude.id, ">>", toLetter);
+					dude = setDude("dude" + toLetter, dude.id);
+					if (animationLabel.indexOf("LEFT") >= 0) {
 						dude.setDirection(-1);
-					}
-					else if(animationLabel.indexOf("RIGHT")>=0) {
+					} else if (animationLabel.indexOf("RIGHT") >= 0) {
 						dude.setDirection(1);
-					}
-					else {
+					} else {
 						dude.setDirection(preDirection);
 					}
-					dude.setLabel("STAND",false);
-					var pylon:Pylon = getChildByName("Pylon"+toLetter) as Pylon;
-					if(pylon.currentLabel!="GOUP"&&pylon.currentLabel!="STILL") {
+					dude.setLabel("STAND", false);
+					var landedPylon: Pylon = getChildByName("Pylon" + toLetter) as Pylon;
+					if (landedPylon.currentLabel != "STILL" && landedPylon.currentLabel != "GOUP") {
+						trace("vvvv", dude.model.name, dude.id,"<<<<",landedPylon.currentLabel);
+//						setChildIndex(dude, getChildIndex(landedPylon));
 						freeFall(dude);
+						return;
 					}
 				});
 			dude.addEventListener("landed",
-				function(e:Event):void {
-					var destinations:Object = Pylon2Pylon[toLetter];
-					if(toLetter!='S' && toLetter!='N') {
-						for(var d:String in destinations) {
-							var pylon:Pylon = getChildByName("Pylon"+d) as Pylon;
-							if(pylon.hasLabel("GODOWN")) {
-								pylon.setLabel(pylon.currentLabel=="STILL"?"GODOWN":"GOUP",true,
-									function(pylon:Pylon):void {
-										pylon.setLabel(pylon.currentLabel=="GODOWN"?"DOWN":"STILL");
-										
-										if(pylon.currentLabel=="DOWN") {
-											for(var i:int=0;i<numChildren;i++) {
-												var dude:Dude = getChildAt(i) as Dude;
-												if(dude && dude.visible && dude.model.name=="dude"+d) {
+				function (e: Event): void {
+					var destinations: Object = Pylon2Pylon[toLetter];
+					if (toLetter != 'S' && toLetter != 'N') {
+						var landedPylon:Pylon = getChildByName("Pylon" + toLetter) as Pylon;
+						if(landedPylon.currentLabel!="STILL" && landedPylon.currentLabel!="GOUP") {
+							return;
+						}
+						for (var d: String in destinations) {
+							var dest: String = d;
+							var pylon: Pylon = getChildByName("Pylon" + d) as Pylon;
+							if (pylon.hasLabel("GODOWN")) {
+								var label: String = pylon.currentLabel == "STILL" ? "GODOWN" : "GOUP";
+								pylon.setLabel(label, true,
+									function (pylon: Pylon): void {
+										pylon.setLabel(pylon.currentLabel == "GODOWN" ? "DOWN" : "STILL", false);
+										if (pylon.currentLabel == "DOWN") {
+											var dest: String = pylon.model.name.split("Pylon")[1];
+
+											for (var i: int = 0; i < numChildren; i++) {
+												var dude: Dude = getChildAt(i) as Dude;
+												//trace(dude ? dude.id : null, dude ? dude.model.name : null, "dude" + dest);
+												if (dude && dude.visible && dude.model.name == "dude" + dest) {
+													//setChildIndex(dude, getChildIndex(pylon));
 													freeFall(dude);
+													trace("vvvv", dude.model.name, dude.id);
 												}
 											}
-										}								
+										}
+
 									});
 							}
 						}
 					}
 				});
 			dude.addEventListener(Event.ENTER_FRAME,
-				function(e:Event):void {
-					var org:DisplayObject = getChildByName("dude"+fromLetter);
-					var dest:DisplayObject = getChildByName("dude"+toLetter);
-					var progress:Number = dude.percentInTheAir;
-					if(progress) {
-						dude.x = dest.x*progress + org.x*(1-progress);
+				function (e: Event): void {
+					var dude:Dude = e.currentTarget as Dude;
+					var org: DisplayObject = getChildByName("dude" + fromLetter);
+					var dest: DisplayObject = getChildByName("dude" + toLetter);
+					var progress: Number = dude.percentInTheAir;
+					if (progress) {
+						dude.x = dest.x * progress + org.x * (1 - progress);
 					}
-					if(dude.currentLabel!=animationLabel) {
-						e.currentTarget.removeEventListener(e.type,arguments.callee);
+					if (dude.currentLabel != animationLabel) {
+						e.currentTarget.removeEventListener(e.type, arguments.callee);
 					}
 				});
 		}
 	}
-	
+
 }

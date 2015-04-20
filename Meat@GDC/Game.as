@@ -32,6 +32,7 @@
 		
 		
 		static public const DEBUG:Boolean = false;
+		static public const jumpScene:String = "Giant";
 		
 		static public var persisted_id:int = 0;
 		public var mainCharacter:Dude;
@@ -183,8 +184,10 @@
 			var model:Dude = name?getChildByName(name) as Dude:null;
 			var dude:Dude = registry[id];
 			var direction:Number = 0;
+//			var doomed:Boolean = false;
 			
 			if(dude) {
+				//doomed = dude.doomed;
 				direction = dude.scaleX;
 				if(dude.model!=model) {
 					dude.parent.removeChild(dude);
@@ -199,6 +202,7 @@
 			if(dude) {
 				dude.setDirection(direction);
 				dude.visible = true;
+//				dude.doomed = doomed;
 			}
 			if(!mainCharacter || !dude || mainCharacter.id==dude.id) {
 				mainCharacter = dude;
@@ -382,7 +386,7 @@
 			}
 
 			if(dude) {
-				Hero.persistentItems = dude.hero.items;
+				Hero.persistentItems = dude.hero.items.concat([]);
 			}
 
 			var func:Function = function():void {

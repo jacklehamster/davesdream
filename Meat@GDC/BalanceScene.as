@@ -96,7 +96,7 @@
 						"ledge"
 					],
 					preDestroy: function(dude:Dude):void {
-						if(dude.hero.hasItem("rock")) {
+						if(dude.hero && dude.hero.hasItem("rock")) {
 							rock.visible = true;
 							rock.setPosition(dude);
 							var scaleRatio:Number = Math.abs(dude.scaleX / dude1.scaleX);

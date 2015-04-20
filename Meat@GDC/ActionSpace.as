@@ -202,6 +202,7 @@
 		}
 		
 		private function _mouseAction(dude:Dude,hotObject:HotObject,item:String):void {
+			//trace("00000",dude?dude.model.name:null,hotObject,item);
 			if(!dude) {
 				if(hotObject && hotObject.direct) {
 					var dude:Dude = new Dude();
@@ -210,8 +211,10 @@
 				}
 			}
 			else if(dude.doomed) {
+				//trace(dude.model.name,"DOOMED");
 			}
 			else if(dude && hotObject) {
+				//trace(dude.inTransit,cantAccess(dude,hotObject),"||||");
 				dude.usingItem = item;
 				if(dude.inTransit || hotObject.direct || cantAccess(dude,hotObject)) {
 					var hot:DisplayObject = hotObject.hotPos ? hotObject.hotPos : hotObject;
