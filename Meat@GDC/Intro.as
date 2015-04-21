@@ -266,6 +266,9 @@
 								barked?"Hey, your dog wants to smoke some weed.":"Cause I'd do anything for my best buddy, dude.",
 								barked?"Thanks Molynux!":"I'll take a dump here if you don't mind.",
 							];
+							if(choice==1) {
+								medal420();
+							}
 							populates(realText[choice],"tf");
 							wait(WAIT,next,choice);
 						},

@@ -449,15 +449,19 @@
 		
 		static public function finish(root:MovieClip):void {
 			API.unlockMedal("ACT 1");
-			gamejoltAchieve(root);
+			gamejoltAchieve(root,22891);
 		}
 		
-		static private function gamejoltAchieve(root:MovieClip):void {
+		protected function medal420():void {
+			API.unlockMedal("420");
+			gamejoltAchieve(MovieClip(root),23341);
+		}
+		
+		static private function gamejoltAchieve(root:MovieClip,trophyID:int):void {
 			var username:String = root.loaderInfo.parameters.gjapi_username;
 			var token:String = root.loaderInfo.parameters.gjapi_token;
 			if(username && token) {
 				var url:String = "http://gamejolt.com/api/game/v1/trophies/add-achieved/";
-				var trophyID:String = "22891";
 				var gameID:String = "59918";
 				var key:String = "2763769fe33664f2d1d964d49f2df721";
 				url += "?game_id="+gameID;
